@@ -1,0 +1,31 @@
+html, body {
+	margin: 0;
+	padding: 0;
+	height: inherit;
+}
+footer {
+	position: relative;
+}
+@media (min-width: 768px) and (max-width: 991px) {
+/*內容*/
+.sidebar {
+	min-height:200px;
+}
+#body_content {
+	padding-bottom: 50px;	/* Height of the footer */
+}
+}
+
+@media (min-width: 320px) and (max-width: 767px) {
+/*內容*/
+.sidebar {
+	min-height:200px;
+}
+#body_content {
+	padding-bottom: 50px;	/* Height of the footer */
+}
+/*置底*/
+footer {
+	height: 611px;/* Height of the footer */
+}
+}

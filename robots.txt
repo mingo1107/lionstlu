@@ -1,0 +1,6 @@
+
+# robots.txt for https://lionstlu.org.tw/
+# tt
+
+User-agent: *
+Disallow: /*article/detail?id=2*

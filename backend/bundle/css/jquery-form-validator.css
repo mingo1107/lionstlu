@@ -1,0 +1,10 @@
+/* 新表單驗證 */
+.js-fv-required {
+    border: 1px solid red;
+    /*background-color: #F4FAFF;*/
+}
+
+.js-fv-required-message {
+    color:red;
+    margin: 2px;
+}

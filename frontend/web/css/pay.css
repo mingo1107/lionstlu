@@ -1,0 +1,96 @@
+@charset "utf-8";
+/* CSS Document */
+input[type="checkbox"] {
+    display:none;
+}
+
+input[type="checkbox"] + label.default {
+	width:100%;
+	background-color:#fff;
+	border:1px solid #ddd;
+	padding:0px;
+
+}
+input[type="checkbox"] + label.default span.title {
+		font-size:32px;
+		display:inline;
+		background-image:none;
+		font-weight:400;
+		color:#444;
+}
+inputinput[type="checkbox"] + label:hover {
+	background-color:#fff;
+	display:block;
+	height:300px;
+	border:1px solid #999;
+}
+input[type="checkbox"] + label span {
+    display:inline-block;
+    width:88px;
+    height:88px;
+    margin:0px 4px 0 0;
+    vertical-align:middle;
+    background:url(../images/check_radio_sheet_style2.png) 0px top no-repeat;
+    cursor:pointer;
+}
+input[type="checkbox"]:checked + label span {
+    background:url(../images/check_radio_sheet_style2.png) -88px top no-repeat;
+}
+input[type="checkbox"]:hover + label {
+	box-shadow:0px 0px 0px rgba(0,0,0,0);
+	cursor:pointer;
+	border:1px solid #959595;	
+}
+
+input[type="checkbox"]:checked + label {
+	border:1px solid #22ac38;
+	cursor:default;
+}
+
+
+input[type="radio"] {
+    display:none;
+}
+
+input[type="radio"] + label.default {
+	width:100%;
+	background-color:#fff;
+	border:1px solid #ddd;
+	padding:0px;
+
+}
+input[type="radio"] + label.default span.title {
+		font-size:32px;
+		display:inline;
+		background-image:none;
+		font-weight:400;
+		color:#444;
+}
+inputinput[type="radio"] + label:hover {
+	background-color:#fff;
+	display:block;
+	height:300px;
+	border:1px solid #999;
+}
+input[type="radio"] + label span {
+    display:inline-block;
+    width:88px;
+    height:88px;
+    margin:0px 4px 0 0;
+    vertical-align:middle;
+    background:url(../images/check_radio_sheet_style2.png) 0px top no-repeat;
+    cursor:pointer;
+}
+input[type="radio"]:checked + label span {
+    background:url(../images/check_radio_sheet_style2.png) -88px top no-repeat;
+}
+input[type="radio"]:hover + label {
+	box-shadow:0px 0px 0px rgba(0,0,0,0);
+	cursor:pointer;
+	border:1px solid #959595;	
+}
+
+input[type="radio"]:checked + label {
+	border:1px solid #22ac38;
+	cursor:default;
+}

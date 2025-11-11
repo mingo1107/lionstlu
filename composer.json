@@ -1,0 +1,47 @@
+{
+  "name": "app/lionstlu",
+  "description": "lionstlu",
+  "keywords": [
+    "愛分享",
+    "trends",
+    "vote",
+    "e-commerce",
+    "shopping"
+  ],
+  "homepage": "http://www.yiiframework.com/",
+  "minimum-stability": "stable",
+  "require": {
+    "php": ">=7.0.0",
+    "yiisoft/yii2": "~2.0.6",
+    "yiisoft/yii2-bootstrap": "~2.0.0",
+    "yiisoft/yii2-swiftmailer": "~2.0.0 || ~2.1.0",
+    "blueimp/jquery-file-upload": "^9.21",
+    "aws/aws-sdk-php": "^3.52",
+    "facebook/graph-sdk": "*"
+  },
+  "require-dev": {
+    "yiisoft/yii2-debug": "~2.0.0",
+    "yiisoft/yii2-gii": "~2.0.0",
+    "yiisoft/yii2-faker": "~2.0.0",
+    "codeception/base": "^2.2.3",
+    "codeception/verify": "~0.3.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "yii\\": "framework/",
+      "ball\\": "ball/"
+    }
+  },
+  "config": {
+    "process-timeout": 1800,
+    "allow-plugins": {
+      "yiisoft/yii2-composer": true
+    }
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://asset-packagist.org"
+    }
+  ]
+}

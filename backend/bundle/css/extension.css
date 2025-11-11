@@ -1,0 +1,25 @@
+.margin-bottom-1 {
+    margin-bottom: .25em;
+}
+
+.margin-bottom-2 {
+    margin-bottom: .5em;
+}
+
+.margin-1 {
+    margin: .25em;
+}
+
+.margin-2 {
+    margin: .5em;
+}
+
+.js-delete {
+    cursor: pointer;
+}
+
+.nav-tabs > li > a {
+    color: #A7B1C2;
+    font-weight: 600;
+    padding: 10px 20px 10px 25px;
+}
