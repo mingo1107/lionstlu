@@ -1,0 +1,13 @@
+vendor/
+runtime/
+web/assets/
+web/upload/
+web/favicon.ico
+web/robots.txt
+web/sitemap.xml
+web/sitemap.xml.gz
+web/sitemap.xml.gz.1
+web/sitemap.xml.gz.2
+web/sitemap.xml.gz.3
+web/sitemap.xml.gz.4
+web/sitemap.xml.gz.5

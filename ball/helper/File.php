@@ -4,11 +4,11 @@ namespace ball\helper;
 
 class File
 {
-    const ENDPOINT_BASE = YII_DEBUG ?
+        const ENDPOINT_BASE = YII_DEBUG ?
     'https://admin.lionstlu.org.tw/upload' : 'https://admin.lionstlu.org.tw/upload';
     const ENDPOINT_S3_BASE = YII_DEBUG ?
     'https://admin.lionstlu.org.tw/upload' : 'https://admin.lionstlu.org.tw/upload';
-    // S3 dir
+	// S3 dir
     const CATEGORY_PRODUCT = '/product';
     const CATEGORY_BANNER = '/banner';
     const CATEGORY_ARTICLE = '/article';

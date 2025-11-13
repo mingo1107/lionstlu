@@ -135,15 +135,9 @@ trait MediaTrait
                 $media->src = Yii::$app->request->post($this->getMediaInputName($formName, "src", $i));
                 $media->link = Yii::$app->request->post($this->getMediaInputName($formName, "link", $i));
                 $media->alt = Yii::$app->request->post($this->getMediaInputName($formName, "alt", $i));
-                $path = File::img($category, $media->src);
-                $imageSize = @getimagesize($path);
-                if (is_array($imageSize)) {
-                    $media->width = $imageSize[0];
-                    $media->height = $imageSize[1];
-                } else {
-                    $media->width = null;
-                    $media->height = null;
-                }
+                $imageSize = getimagesize(File::img($category, $media->src));
+                $media->width = $imageSize[0];
+                $media->height = $imageSize[1];
                 array_push($img, $media);
             }
         }

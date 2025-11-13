@@ -9,7 +9,7 @@ use backend\widget\InlineScript;
 use backend\widget\Menu;
 use yii\helpers\Html;
 
-$this->title = '愛分享後台管理';
+$this->title = '台灣獅子大學後台管理';
 BackendAsset::register($this);
 ?>
 <?php $this->beginPage() ?>

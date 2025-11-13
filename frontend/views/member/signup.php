@@ -22,12 +22,12 @@ FormValidateAsset::register($this);
                             class="fa fa-angle-left mr5" aria-hidden="true"></i>返回登入</a>
                 <h3>註冊會員</h3>
                 <fieldset>
-                    <button class="btn btn-block btn-fb btn-xlg" type="button"><i
+                   <!--  <button class="btn btn-block btn-fb btn-xlg" type="button"><i
                                 class="fa fa-facebook-official mr10" aria-hidden="true"></i>facebook帳號繼續
                     </button>
                     <center>
                         <h4 style="color:#75787b">或</h4>
-                    </center>
+                    </center> -->
                     <div class="form-group">
                         <?= Html::activeTextInput($model, 'username',
                             ['placeholder' => 'E-Mail', 'autofocus' => '1', 'class' => 'form-control',

@@ -8,7 +8,7 @@ use backend\widget\InlineScript;
 use frontend\assets\FrontendAsset;
 use yii\helpers\Html;
 
-$this->title = '愛分享';
+$this->title = '台灣獅子大學';
 FrontendAsset::register($this);
 ?>
 <?php $this->beginPage() ?>

@@ -21,12 +21,12 @@ FormValidateAsset::register($this);
             <div class="signin-row">
                 <h3>會員登入</h3>
                 <fieldset>
-                    <a class="btn btn-block btn-fb btn-xlg" href="<?=Url::to("/member/fb-login")?>">
+                    <!-- <a class="btn btn-block btn-fb btn-xlg" href="<?=Url::to("/member/fb-login")?>">
                         <i class="fa fa-facebook-official mr10" aria-hidden="true"></i>facebook帳號登入
                     </a>
                     <center>
                         <h4 style="color:#75787b">或</h4>
-                    </center>
+                    </center> -->
                     <div class="form-group">
                         <?= Html::activeTextInput($model, 'username',
                             ['placeholder' => 'E-Mail', 'autofocus' => '1', 'class' => 'form-control input-lg',
@@ -50,7 +50,7 @@ FormValidateAsset::register($this);
                     <input class="btn btn-success btn-block mt15 mb10 btn-xlg" type="submit" value="登入">
                     <button type="button" class="btn btn-block btn-xlg btn-success-outline step step-1"
                             data-step="1" onClick="location.href = '/member/signup'">註冊新會員
-                    </button>
+                    </button> 
                 </fieldset>
             </div>
         </div>

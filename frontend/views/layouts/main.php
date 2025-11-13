@@ -11,7 +11,7 @@ use frontend\assets\FrontendAsset;
 use frontend\widget\Category;
 use yii\helpers\Html;
 
-$this->title = '愛分享';
+$this->title = '台灣獅子大學';
 FrontendAsset::register($this);
 ?>
 <?php $this->beginPage() ?>
@@ -39,13 +39,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 })(window,document,'script','dataLayer','GTM-K23QP9BF');</script>
 
 <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-9S5QZ4G1HQ"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XDEKRLD0NL"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
-  gtag('config', 'G-9S5QZ4G1HQ');
+  gtag('config', 'G-XDEKRLD0NL');
 </script>
 
 </head>
@@ -90,7 +90,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                         </button>
                     <?php endif; ?>
                     <a class="navbar-brand" href="/">
-                        <img src="/images/logo.png" width="142" height="48" title="愛分享" alt="愛分享"
+                        <img src="/images/logo.png" width="142" height="48" title="台灣獅子大學" alt="台灣獅子大學"
                              class="img-responsive">
                     </a>
                 </div>
@@ -103,22 +103,40 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!--                                <a class="js-void" data-fancybox data-type="iframe" data-src="/member/login">-->
                                 <a href="/member/login">
                                 <span class="mb-id"><i class="fa fa-user mr5" aria-hidden="true"></i>
-                                    登入/註冊</span>
+                                    登入</span>
                                 </a>
                             </li>
                         <?php endif ?>
-                        <li>
+                        <!-- <li><a href=""><i class="fa fa-briefcase mr5" aria-hidden="true"></i>直播</a>
                             <a href="/cs/index"><i
-                                        class="fa fa-briefcase mr5" aria-hidden="true"></i>合作提案</a>
+                                        class="fa fa-briefcase mr5" aria-hidden="true"></i>合作提案</a> 
                         </li>
-                        <li>
-                            <a href="/cs/index?c=<?= CustomerServiceModel::CATEGORY_INVITE ?>"><i
+                        <li><a href=""><i class="fa fa-briefcase mr5" aria-hidden="true"></i>臉書</a>
+                            <a href="/cs/index"><i
+                                        class="fa fa-briefcase mr5" aria-hidden="true"></i>合作提案</a> 
+                        </li>
+                        <li><a href=""><i class="fa fa-briefcase mr5" aria-hidden="true"></i>錄影</a>
+                            <a href="/cs/index"><i
+                                        class="fa fa-briefcase mr5" aria-hidden="true"></i>合作提案</a> 
+                        </li>
+                        <li><a href=""><i class="fa fa-briefcase mr5" aria-hidden="true"></i>行事曆</a>
+                             <a href="/cs/index"><i
+                                        class="fa fa-briefcase mr5" aria-hidden="true"></i>合作提案</a> 
+                        </li>
+                        <li><a href=""><i class="fa fa-briefcase mr5" aria-hidden="true"></i>訊息</a>
+                             <a href="/cs/index"><i
+                                        class="fa fa-briefcase mr5" aria-hidden="true"></i>合作提案</a> 
+                        </li>-->
+
+
+                        <!-- <li>
+                            <a href="/cs/index?c=<//?= CustomerServiceModel::CATEGORY_INVITE ?>"><i
                                         class="fa fa-bullhorn mr5" aria-hidden="true"></i>採訪邀約</a>
-                        </li>
+                        </li>-->
                         <li>
-                            <a href="/cs/index?c=<?= CustomerServiceModel::CATEGORY_SELF_RECOMMEND ?>"><i
-                                        class="fa fa-pencil-square-o mr5" aria-hidden="true"></i>我要投稿</a>
-                        </li>
+                            <a href="/cs/index?c=<//?= CustomerServiceModel::CATEGORY_SELF_RECOMMEND ?>"><i
+                                        class="fa fa-pencil-square-o mr5" aria-hidden="true"></i>聯絡我們</a>
+                        </li> 
                         <form id="search-form-d" name="search-form-d" action="/article/search" method="get"
                               class="navbar-form navbar-left mb-none" role="search">
                             <div class="input-group">
@@ -176,6 +194,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     </header>
     <!--表頭_結束-->
 
+
     <?= Category::widget() ?>
 
     <!--內容外框_開始-->
@@ -191,7 +210,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <footer>
     <div class="footer-link-row">
         <div class="container">
-            <div class="col-md-2 col-sm-3 col-xs-12" ><img src="/images/logo.png" width="150" height="51" title="愛分享" alt="愛分享" class="img-responsive"></div>
+            <div class="col-md-2 col-sm-3 col-xs-12" ><img src="/images/logo.png" width="150" height="51" title="台灣獅子大學" alt="台灣獅子大學" class="img-responsive"></div>
             <div class="col-md-10 col-sm-9 col-xs-12">
                 <div class="row">
                     <div class="col-sm-4 col-xs-12">
@@ -203,10 +222,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     </div>
                     <div class="col-sm-4 col-xs-12">
                         <h4>社群</h4>
-                        <!-- <ul class="footer-link">
-                            <li><a href="https://www.facebook.com/WindTalkNews/">愛分享粉絲團</a></li>
+                       <ul class="footer-link">
+                            <li><a href="https://www.facebook.com/WindTalkNews/">台灣獅子大學粉絲團</a></li>
                             <li><a href="https://www.facebook.com/LionsClubsStory/">獅子說故事</a></li>
-                        </ul> -->
+                        </ul> 
                     </div>
                     <div class="col-sm-4 col-xs-12">
                         <h4>聯繫</h4>
@@ -224,7 +243,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <div class="footer-legal-row">
         <div class="container">
             <div class="col-md-12">
-                <p>愛分享 2025 ALL RIGHTS RESERVED</p>
+                <p>台灣獅子大學 2025 ALL RIGHTS RESERVED</p>
             </div>
         </div>
     </div>

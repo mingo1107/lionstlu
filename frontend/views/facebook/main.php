@@ -11,7 +11,7 @@ use frontend\assets\FrontendAsset;
 use frontend\widget\Category;
 use yii\helpers\Html;
 
-$this->title = '愛分享';
+$this->title = '台灣獅子大學';
 FrontendAsset::register($this);
 ?>
 <?php $this->beginPage() ?>
