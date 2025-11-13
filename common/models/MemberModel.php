@@ -68,6 +68,7 @@ class MemberModel extends Member implements IdentityInterface
         if (parent::beforeValidate()) {
             if ($this->scenario == self::SCENARIO_CREATE || $this->scenario == self::SCENARIO_SIGNUP) {
                 $this->generatePasswordResetToken();
+                $this->generateRegisterToken(); // 產生註冊驗證 token
                 $this->country = '台灣';
                 $this->status = self::STATUS_ONLINE;
                 $this->validate = self::VALIDATE_NO;
@@ -94,10 +95,32 @@ class MemberModel extends Member implements IdentityInterface
 請點<a href='https://lionstlu.org.tw/member/reset-password?token=$this->password_reset_token'>重設密碼連結</a>重設密碼<br/>若這不是你操作的，請忽略此信件";
         Yii::$app->mailer->compose()
             ->setTo($this->email)
-            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setFrom('windtalk@gmail.com')
             ->setSubject('[愛分享] 帳號密碼重置信')
             ->setHtmlBody($content)
             ->send();
+    }
+
+    /**
+     * 發送註冊驗證信
+     */
+    public function sendRegisterVerificationEmail()
+    {
+        $params = Yii::$app->params;
+        $verifyLink = Yii::$app->urlManager->createAbsoluteUrl([
+            'member/verify-email',
+            'token' => $this->register_token
+        ]);
+        
+        $message = Yii::$app->mailer->compose('register-verification-html', [
+            'member' => $this,
+            'verifyLink' => $verifyLink,
+        ])
+            ->setTo($this->email)
+            ->setFrom([$params['smtp']['fromEmail'] => $params['smtp']['fromName']])
+            ->setSubject('[台灣獅子大學] 會員註冊驗證信');
+        
+        return $message->send();
     }
 
     /**
@@ -291,6 +314,22 @@ class MemberModel extends Member implements IdentityInterface
     public function removePasswordResetToken()
     {
         $this->password_reset_token = null;
+    }
+
+    /**
+     * 產生註冊驗證 token
+     */
+    public function generateRegisterToken()
+    {
+        $this->register_token = Yii::$app->security->generateRandomString(32);
+    }
+
+    /**
+     * 移除註冊驗證 token
+     */
+    public function removeRegisterToken()
+    {
+        $this->register_token = null;
     }
 
     public function logout()

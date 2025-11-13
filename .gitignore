@@ -1,4 +1,5 @@
 vendor/
+markdown/
 runtime/
 web/assets/
 web/upload/

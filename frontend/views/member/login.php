@@ -9,15 +9,17 @@ use yii\helpers\Html;
 
 /* @var $this \yii\web\View */
 /* @var $model \frontend\models\LoginForm */
+/* @var $signupModel \common\models\MemberModel */
 
 FormValidateAsset::register($this);
 ?>
 <?php if (yii::$app->user->isGuest): ?>
     <!--會員登入-開始-->
-    <form id="main-form" name="main-form" method="post">
+    <form id="login-form" name="login-form" method="post">
         <input type="hidden" name="<?= yii::$app->request->csrfParam ?>"
                value="<?= yii::$app->request->csrfToken ?>"/>
-        <div class="modal-body step step-1 container">
+        <input type="hidden" name="action" value="login"/>
+        <div class="modal-body step step-1 container" id="login-step">
             <div class="signin-row">
                 <h3>會員登入</h3>
                 <fieldset>
@@ -48,13 +50,47 @@ FormValidateAsset::register($this);
                             <i class="fa fa-unlock-alt mr5" aria-hidden="true"></i>忘記密碼</a>
                     </div>
                     <input class="btn btn-success btn-block mt15 mb10 btn-xlg" type="submit" value="登入">
-                    <button type="button" class="btn btn-block btn-xlg btn-success-outline step step-1"
-                            data-step="1" onClick="location.href = '/member/signup'">註冊新會員
+                    <button type="button" class="btn btn-block btn-xlg btn-success-outline" 
+                            onclick="showSignup()">註冊新會員
                     </button> 
                 </fieldset>
             </div>
         </div>
     </form>
+    
+    <!--會員註冊-開始-->
+    <form id="signup-form" name="signup-form" method="post" style="display:none;">
+        <input type="hidden" name="<?= yii::$app->request->csrfParam ?>"
+               value="<?= yii::$app->request->csrfToken ?>"/>
+        <input type="hidden" name="action" value="signup"/>
+        <div class="modal-body step step-3 container" id="signup-step">
+            <div class="signin-row">
+                <a href="javascript:void(0);" onclick="showLogin()" class="step step-3" data-step="1">
+                    <i class="fa fa-angle-left mr5" aria-hidden="true"></i>返回登入</a>
+                <h3>註冊會員</h3>
+                <fieldset>
+                    <div class="form-group">
+                        <?= Html::activeTextInput($signupModel, 'username',
+                            ['placeholder' => 'E-Mail', 'autofocus' => '1', 'class' => 'form-control input-lg',
+                                'data-v-rule' => 'email', 'data-v-msg' => 'E-Mail格式不正確']) ?>
+                    </div>
+                    <div class="form-group">
+                        <?= Html::activePasswordInput($signupModel, 'password',
+                            ['placeholder' => '密碼', 'class' => 'form-control input-lg',
+                                'data-v-rule' => '', 'data-v-msg' => '請輸入密碼']) ?>
+                    </div>
+                    <div class="form-group">
+                        <?= Html::activeTextInput($signupModel, 'name',
+                            ['placeholder' => '暱稱', 'class' => 'form-control input-lg',
+                                'data-v-rule' => '', 'data-v-msg' => '請輸入暱稱']) ?>
+                    </div>
+                    <?= HtmlHelper::displayFlash() ?>
+                    <input class="btn btn-success btn-block mt15 mb10 btn-xlg" type="submit" value="註冊">
+                </fieldset>
+            </div>
+        </div>
+    </form>
+    <!--會員註冊-結束-->
     <!--會員登入-結束-->
 <?php endif ?>
 <?php InlineScript::begin() ?>
@@ -84,7 +120,26 @@ FormValidateAsset::register($this);
 
         };
 
-        $('#main-form').submit(function () {
+        // 切換顯示登入/註冊表單
+        window.showLogin = function() {
+            $('#login-form').show();
+            $('#signup-form').hide();
+        };
+        
+        window.showSignup = function() {
+            $('#login-form').hide();
+            $('#signup-form').show();
+        };
+
+        $('#login-form').submit(function () {
+            if ($(this).formValidate()) {
+                $('input[type="submit"]').attr('disabled', 'disabled');
+                return true;
+            }
+            return false;
+        });
+        
+        $('#signup-form').submit(function () {
             if ($(this).formValidate()) {
                 $('input[type="submit"]').attr('disabled', 'disabled');
                 return true;

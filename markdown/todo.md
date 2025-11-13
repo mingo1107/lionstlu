@@ -9,9 +9,9 @@
 ---
 
 ## 前置作業（Email/Mailer）
-- [ ] 設定 SMTP 參數（common/config/params-local.php）
-- [ ] 驗證 mailer 可發信（測試信）
-- [ ] 忘記密碼信件樣板與寄件者資訊確認（common/mail/*）
+- [x] 設定 SMTP 參數（common/config/params-local.php）
+- [x] 驗證 mailer 可發信（測試信）
+- [x] 忘記密碼信件樣板與寄件者資訊確認（common/mail/*）
 
 ## 前台（Frontend）
 - [ ] 登入流程驗證與調整

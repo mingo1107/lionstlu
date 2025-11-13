@@ -49,14 +49,46 @@ class MemberController extends FrontendController
             return $this->goHome();
         }
 
+        // 處理註冊請求
+        $signupModel = new MemberModel(['scenario' => MemberModel::SCENARIO_SIGNUP]);
+        if (Yii::$app->request->post('action') === 'signup' && $signupModel->load(Yii::$app->request->post())) {
+            $signupModel->username = trim($signupModel->username);
+            if (!MemberModel::exists($signupModel->username)) {
+                $signupModel->email = $signupModel->username;
+                $signupModel->setPassword($signupModel->password);
+                if ($signupModel->save()) {
+                    // 發送驗證信
+                    try {
+                        if ($signupModel->sendRegisterVerificationEmail()) {
+                            HtmlHelper::setMessage('註冊成功！我們已發送驗證信至您的 Email，請收取驗證信後點擊連結完成驗證，即可登入。');
+                        } else {
+                            HtmlHelper::setMessage('註冊成功！但驗證信發送失敗，請聯繫客服協助處理。');
+                        }
+                    } catch (\Exception $e) {
+                        HtmlHelper::setMessage('註冊成功！但驗證信發送失敗：' . $e->getMessage());
+                    }
+                    // 不自動登入，導向登入頁
+                    return $this->redirect(['/member/login']);
+                } else {
+                    HtmlHelper::setError(Html::errorSummary($signupModel));
+                }
+            } else {
+                HtmlHelper::setError("很抱歉，'{$signupModel->username}'已經被人使用，請選擇其他E-Mail");
+            }
+            $signupModel->password = '';
+        }
+
+        // 處理登入請求
         $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post())) {
+        if (Yii::$app->request->post('action') !== 'signup' && $model->load(Yii::$app->request->post())) {
             if (!$model->login()) {
                 $model->password = '';
             }
         }
+        
         return $this->render('login', [
             'model' => $model,
+            'signupModel' => $signupModel,
         ]);
     }
 
@@ -191,6 +223,46 @@ class MemberController extends FrontendController
                     'model' => $model,
                 ]);
             }
+        }
+    }
+
+    /**
+     * Email 驗證
+     * 入口：/member/verify-email?token=...
+     */
+    public function actionVerifyEmail()
+    {
+        $token = Yii::$app->request->get('token');
+        
+        if (empty($token)) {
+            HtmlHelper::setError('驗證連結無效，請重新操作');
+            return $this->redirect(['/member/login']);
+        }
+
+        $member = MemberModel::findOne(['register_token' => $token]);
+
+        if ($member == null) {
+            HtmlHelper::setError('驗證連結無效或已過期，請重新註冊或聯繫客服');
+            return $this->redirect(['/member/login']);
+        }
+
+        // 檢查是否已經驗證過
+        if ($member->validate == MemberModel::VALIDATE_YES) {
+            HtmlHelper::setMessage('您的 Email 已經驗證過了，可以直接登入');
+            return $this->redirect(['/member/login']);
+        }
+
+        // 執行驗證
+        $member->validate = MemberModel::VALIDATE_YES;
+        $member->removeRegisterToken(); // 移除驗證 token
+        $member->update_time = new \yii\db\Expression('now()');
+        
+        if ($member->save(false)) {
+            HtmlHelper::setMessage('Email 驗證成功！您現在可以登入了。');
+            return $this->redirect(['/member/login']);
+        } else {
+            HtmlHelper::setError('驗證失敗，請聯繫客服協助處理');
+            return $this->redirect(['/member/login']);
         }
     }
 
