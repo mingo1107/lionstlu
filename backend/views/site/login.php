@@ -14,8 +14,8 @@ $this->params['breadcrumbs'][] = $this->title;
 <h3>管理後台</h3>
 <form class="m-t" role="form" method="post">
     <?=HtmlHelper::displayFlash()?>
-    <input type="hidden" name="<?= yii::$app->request->csrfParam ?>"
-           value="<?= yii::$app->request->csrfToken ?>"/>
+    <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>"
+           value="<?= Yii::$app->request->csrfToken ?>"/>
     <div class="form-group">
         <?= Html::activeTextInput($model, 'username', ['class' => 'form-control input-lg',
             'placeholder' => '帳號', 'required' => '']) ?>

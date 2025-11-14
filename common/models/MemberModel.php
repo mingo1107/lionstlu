@@ -51,7 +51,8 @@ class MemberModel extends Member implements IdentityInterface
     public function rules()
     {
         $rules = parent::rules();
-        array_push($rules,
+        array_push(
+            $rules,
             [['username', 'password_hash', 'email', 'mobile', 'city', 'district', 'mobile', 'zip', 'name'], 'required', 'on' => self::SCENARIO_CREATE],
             [['password'], 'safe', 'on' => static::SCENARIO_CREATE],
             [['password_hash', 'email', 'mobile', 'city', 'district', 'mobile', 'zip', 'name'], 'required', 'on' => self::SCENARIO_UPDATE],
@@ -89,16 +90,32 @@ class MemberModel extends Member implements IdentityInterface
         }
     }
 
+    /**
+     * 發送忘記密碼通知信
+     */
     public function sendForgotPasswordNotice()
     {
-        $content = "因為您再愛分享的網站點了重至密碼，所以收到這封信件，
-請點<a href='https://lionstlu.org.tw/member/reset-password?token=$this->password_reset_token'>重設密碼連結</a>重設密碼<br/>若這不是你操作的，請忽略此信件";
-        Yii::$app->mailer->compose()
+        // 確保有 password_reset_token
+        if (empty($this->password_reset_token)) {
+            $this->generatePasswordResetToken();
+            $this->save(false);
+        }
+
+        $params = Yii::$app->params;
+        $resetLink = Yii::$app->urlManager->createAbsoluteUrl([
+            'member/reset-password',
+            'token' => $this->password_reset_token
+        ]);
+
+        $message = Yii::$app->mailer->compose('forgot-password-html', [
+            'member' => $this,
+            'resetLink' => $resetLink,
+        ])
             ->setTo($this->email)
-            ->setFrom('windtalk@gmail.com')
-            ->setSubject('[愛分享] 帳號密碼重置信')
-            ->setHtmlBody($content)
-            ->send();
+            ->setFrom([$params['smtp']['fromEmail'] => $params['smtp']['fromName']])
+            ->setSubject('[台灣獅子大學] 帳號密碼重置信');
+
+        return $message->send();
     }
 
     /**
@@ -111,7 +128,7 @@ class MemberModel extends Member implements IdentityInterface
             'member/verify-email',
             'token' => $this->register_token
         ]);
-        
+
         $message = Yii::$app->mailer->compose('register-verification-html', [
             'member' => $this,
             'verifyLink' => $verifyLink,
@@ -119,7 +136,7 @@ class MemberModel extends Member implements IdentityInterface
             ->setTo($this->email)
             ->setFrom([$params['smtp']['fromEmail'] => $params['smtp']['fromName']])
             ->setSubject('[台灣獅子大學] 會員註冊驗證信');
-        
+
         return $message->send();
     }
 
@@ -181,8 +198,10 @@ class MemberModel extends Member implements IdentityInterface
      */
     public static function exists(string $username)
     {
-        return self::getDb()->createCommand("SELECT 1 FROM member WHERE username = :username",
-            [":username" => $username])->queryScalar() == 1
+        return self::getDb()->createCommand(
+            "SELECT 1 FROM member WHERE username = :username",
+            [":username" => $username]
+        )->queryScalar() == 1
             ? true : false;
     }
 
@@ -269,17 +288,37 @@ class MemberModel extends Member implements IdentityInterface
      */
     public function validateAuthKey($authKey)
     {
-        $keyArray = explode("_", $authKey);
+        // 先嘗試使用 | 分隔符（新格式）
+        $keyArray = explode("|", $authKey);
+        // 如果失敗，嘗試使用 _ 分隔符（舊格式，向後兼容）
+        if (count($keyArray) != 4) {
+            // 舊格式：只分割前 3 個下劃線，剩下的作為 User Agent
+            $parts = [];
+            $remaining = $authKey;
+            for ($i = 0; $i < 3; $i++) {
+                $pos = strpos($remaining, '_');
+                if ($pos === false) {
+                    return false;
+                }
+                $parts[] = substr($remaining, 0, $pos);
+                $remaining = substr($remaining, $pos + 1);
+            }
+            $parts[] = $remaining; // 剩下的部分作為 User Agent
+            $keyArray = $parts;
+        }
+        
         if (count($keyArray) != 4) {
             return false;
         }
 
-        if (is_numeric($keyArray[0])
+        if (
+            is_numeric($keyArray[0])
             && intval($keyArray[0]) > 0
             && intval($keyArray[0]) <= time()
             && $keyArray[1] == $this->getId()
             && $keyArray[3] == $_SERVER['HTTP_USER_AGENT']
-            && $keyArray[2] == HttpUtil::ip()) {
+            && $keyArray[2] == HttpUtil::ip()
+        ) {
             return true;
         } else {
             return false;
@@ -321,7 +360,13 @@ class MemberModel extends Member implements IdentityInterface
      */
     public function generateRegisterToken()
     {
-        $this->register_token = Yii::$app->security->generateRandomString(32);
+        // 使用不帶參數的版本以確保與 Yii2 2.0.6 兼容
+        // 預設長度為 32，如果返回的長度不足則重複生成
+        $token = Yii::$app->security->generateRandomString();
+        if (strlen($token) < 32) {
+            $token .= Yii::$app->security->generateRandomString();
+        }
+        $this->register_token = substr($token, 0, 32);
     }
 
     /**
@@ -345,7 +390,8 @@ class MemberModel extends Member implements IdentityInterface
 
     public function generateAuthKey()
     {
-        $authKey = sprintf("%s_%s_%s_%s", time(), $this->getId(), HttpUtil::ip(), $_SERVER['HTTP_USER_AGENT']);
+        // 使用 | 作為分隔符，避免 User Agent 中的下劃線導致分割錯誤
+        $authKey = sprintf("%s|%s|%s|%s", time(), $this->getId(), HttpUtil::ip(), $_SERVER['HTTP_USER_AGENT']);
         HttpUtil::setCookie(self::LOGIN_KEY_SECRET, $authKey, time() + self::LOGIN_DURATION);
     }
 }

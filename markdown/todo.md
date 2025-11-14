@@ -14,19 +14,19 @@
 - [x] 忘記密碼信件樣板與寄件者資訊確認（common/mail/*）
 
 ## 前台（Frontend）
-- [ ] 登入流程驗證與調整
+- [x] 登入流程驗證與調整
   - 入口：`/member/login`（frontend/controllers/MemberController::actionLogin）
-  - [ ] 未登入訪客導向登入頁（保留 referrer，登入後導回）
-  - [ ] 導航列：登入/註冊/登出項目顯示切換
-- [ ] 登出流程驗證
+  - [x] 未登入訪客導向登入頁（保留 referrer，登入後導回）
+  - [x] 導航列：登入/註冊/登出項目顯示切換
+- [x] 登出流程驗證
   - 入口：`/site/logout`（frontend/controllers/SiteController::actionLogout）
-- [ ] 忘記密碼（發信）
+- [x] 忘記密碼（發信）
   - 入口：`/member/forget-password`（MemberController::actionForgetPassword）
-  - [ ] 表單驗證、成功/失敗訊息顯示
-- [ ] 重設密碼
+  - [x] 表單驗證、成功/失敗訊息顯示
+- [x] 重設密碼
   - 入口：`/member/reset-password?token=...`（MemberController::actionResetPassword）
-  - [ ] Token 驗證/過期處理
-  - [ ] 成功後導向登入
+  - [x] Token 驗證/過期處理
+  - [x] 成功後導向登入
 - [ ] 權限保護頁（需登入）
   - 頁面：學習中心、工具下載、直播、影片回放
   - [ ] 設計 routes 與 views
@@ -43,11 +43,11 @@
   - [ ] 成功/失敗訊息處理
 
 ## 測試（Testing）
-- [ ] 建立測試帳號（一般會員、管理員）
+- [x] 建立測試帳號（一般會員、管理員）
 - [ ] 用例驗證
-  - [ ] 登入/登出
-  - [ ] 忘記密碼發信與收信
-  - [ ] 重設密碼成功與 token 異常情境
+  - [x] 登入/登出
+  - [x] 忘記密碼發信與收信
+  - [x] 重設密碼成功與 token 異常情境
   - [ ] 權限頁面導向與登入後導回
   - [ ] 後台列表搜尋/分頁
   - [ ] 後台編輯資料與驗證訊息

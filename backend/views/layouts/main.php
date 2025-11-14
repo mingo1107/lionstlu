@@ -33,7 +33,7 @@ BackendAsset::register($this);
             <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
                 <ul class="nav navbar-top-links navbar-right">
                     <li>
-                        <span class="m-r-sm text-muted welcome-message"><?= yii::$app->user->getIdentity()->name ?></span>
+                        <span class="m-r-sm text-muted welcome-message"><?= Yii::$app->user->getIdentity() ? Yii::$app->user->getIdentity()->name : 'Unknown' ?></span>
                     </li>
 
 

@@ -50,7 +50,7 @@ class BackendController extends Controller
     public function beforeAction($action)
     {
         if (!YII_DEBUG && HttpUtil::port() == 80) {
-            yii::$app->response->redirect(Url::base('https') . Url::current(), 301);
+            Yii::$app->response->redirect(Url::base('https') . Url::current(), 301);
         }
         if (parent::beforeAction($action)) {
             $this->queryString = HttpUtil::buildQuery($_GET);
@@ -64,7 +64,7 @@ class BackendController extends Controller
     public function afterAction($action, $result)
     {
         $result = parent::afterAction($action, $result);
-        yii::$app->session->close();
+        Yii::$app->session->close();
         return $result;
     }
 
@@ -81,9 +81,9 @@ class BackendController extends Controller
              */
             $user = Yii::$app->user->getIdentity();
             //echo json_encode($menuParentList);exit;
-            yii::$app->view->params['accessList'] = $user->getAccessList();
-            yii::$app->view->params['menuList'] = $menuList;
-            yii::$app->view->params['menuParentList'] = $menuParentList;
+            Yii::$app->view->params['accessList'] = $user->getAccessList();
+            Yii::$app->view->params['menuList'] = $menuList;
+            Yii::$app->view->params['menuParentList'] = $menuParentList;
         }
         $params['qs'] = $this->queryString;
         $params['title'] = $this->title;
@@ -118,14 +118,14 @@ class BackendController extends Controller
         $qs = HttpUtil::buildQuery($_GET, ['id']);
         $indexTitle = $this->actionLabel . '管理';
         $this->view->params['breadcrumbs'][] = ['label' => $indexTitle,
-            'url' => ['/' . yii::$app->controller->id . '/index' . $qs]];
+            'url' => ['/' . Yii::$app->controller->id . '/index' . $qs]];
         $this->view->params['breadcrumbs'][] = ['label' => $title];
     }
 
     public function kick()
     {
-        yii::$app->user->logout();
-        yii::$app->session->destroy();
+        Yii::$app->user->logout();
+        Yii::$app->session->destroy();
         header('Location: /site/login', true, 302);
         exit;
     }

@@ -39,18 +39,27 @@ class MemberController extends FrontendController
                     ],
                 ],
             ],
+            // 為登入和註冊動作禁用 CSRF 驗證（如果需要）
+            // 注意：通常應該保持 CSRF 驗證啟用，這裡只是為了除錯
+            // 'csrf' => [
+            //     'class' => \yii\filters\CsrfFilter::class,
+            //     'only' => ['login'],
+            //     'except' => ['login'], // 如果需要禁用特定動作的 CSRF
+            // ],
         ]);
     }
 
     public function actionLogin()
     {
-//        $this->module->layout = 'iframe';
+        //        $this->module->layout = 'iframe';
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
 
         // 處理註冊請求
         $signupModel = new MemberModel(['scenario' => MemberModel::SCENARIO_SIGNUP]);
+        $showSignup = false; // 預設顯示登入表單
+
         if (Yii::$app->request->post('action') === 'signup' && $signupModel->load(Yii::$app->request->post())) {
             $signupModel->username = trim($signupModel->username);
             if (!MemberModel::exists($signupModel->username)) {
@@ -71,9 +80,11 @@ class MemberController extends FrontendController
                     return $this->redirect(['/member/login']);
                 } else {
                     HtmlHelper::setError(Html::errorSummary($signupModel));
+                    $showSignup = true; // 註冊失敗，顯示註冊表單
                 }
             } else {
                 HtmlHelper::setError("很抱歉，'{$signupModel->username}'已經被人使用，請選擇其他E-Mail");
+                $showSignup = true; // 帳號已存在，顯示註冊表單
             }
             $signupModel->password = '';
         }
@@ -81,14 +92,19 @@ class MemberController extends FrontendController
         // 處理登入請求
         $model = new LoginForm();
         if (Yii::$app->request->post('action') !== 'signup' && $model->load(Yii::$app->request->post())) {
-            if (!$model->login()) {
+            if ($model->login()) {
+                // 登入成功，重定向到首頁（避免刷新時重複提交）
+                return $this->goHome();
+            } else {
+                // 登入失敗，清除密碼並顯示錯誤
                 $model->password = '';
             }
         }
-        
+
         return $this->render('login', [
             'model' => $model,
             'signupModel' => $signupModel,
+            'showSignup' => $showSignup, // 傳遞標記給視圖
         ]);
     }
 
@@ -108,9 +124,9 @@ class MemberController extends FrontendController
                 "fields" => "email,name,id"
 
             ]);
-            if(isset($result->email) && !empty($result->email)) {
+            if (isset($result->email) && !empty($result->email)) {
                 $member = MemberModel::findOne(["email" => $result->email]);
-                if(empty($member)) {
+                if (empty($member)) {
                     $member = new MemberModel();
                     $member->username = $email ?? MemberBindModel::PLATFORM_FACEBOOK . "_" . $id;
                     $member->setPassword(StringUtil::generateRandomString(128));
@@ -157,32 +173,15 @@ class MemberController extends FrontendController
 
     public function actionSignup()
     {
-//        $this->module->layout = 'iframe';
-        $model = new MemberModel(['scenario' => MemberModel::SCENARIO_SIGNUP]);
-        if ($model->load(yii::$app->request->post())) {
-            $model->username = trim($model->username);
-            if (!MemberModel::exists($model->username)) {
-                $model->email = $model->username;
-                $model->setPassword($model->password);
-                if ($model->save()) {
-                    yii::$app->user->login($model);
-                } else {
-                    HtmlHelper::setError(Html::errorSummary($model));
-                }
-            } else {
-                HtmlHelper::setError("很抱歉，'$model->username'已經被人使用，請選擇其他E-Mail");
-            }
-            $model->password = '';
-        }
-        return $this->render('signup', [
-            'model' => $model,
-        ]);
+        // 註冊功能已整合到 actionLogin 中，此方法保留用於向後兼容
+        // 重定向到登入頁面（登入頁面包含註冊功能）
+        return $this->redirect(['/member/login']);
     }
 
     public function actionForgetPassword()
     {
-//        $this->layout = 'iframe';
-        if (!yii::$app->user->isGuest) {
+        //        $this->layout = 'iframe';
+        if (!Yii::$app->user->isGuest) {
             return $this->redirect('/');
         }
         $id = Yii::$app->request->post('id');
@@ -233,7 +232,7 @@ class MemberController extends FrontendController
     public function actionVerifyEmail()
     {
         $token = Yii::$app->request->get('token');
-        
+
         if (empty($token)) {
             HtmlHelper::setError('驗證連結無效，請重新操作');
             return $this->redirect(['/member/login']);
@@ -256,7 +255,7 @@ class MemberController extends FrontendController
         $member->validate = MemberModel::VALIDATE_YES;
         $member->removeRegisterToken(); // 移除驗證 token
         $member->update_time = new \yii\db\Expression('now()');
-        
+
         if ($member->save(false)) {
             HtmlHelper::setMessage('Email 驗證成功！您現在可以登入了。');
             return $this->redirect(['/member/login']);
@@ -275,15 +274,19 @@ class MemberController extends FrontendController
         /**
          * @var $member MemberModel
          */
-        $member = yii::$app->user->getIdentity();
+        $member = Yii::$app->user->getIdentity();
         $member->scenario = MemberModel::SCENARIO_UPDATE;
-        if ($member->load(yii::$app->request->post())) {
+        if ($member->load(Yii::$app->request->post())) {
             if (!empty($member->password) && $member->password == $member->password2) {
                 $member->setPassword($member->password);
             }
+            // 處理生日欄位：如果為空字串，設為 null
+            if (empty($member->birthday)) {
+                $member->birthday = null;
+            }
             if ($member->save()) {
                 HtmlHelper::setMessage('會員資料更新成功');
-                return $this->redirect(yii::$app->request->referrer);
+                return $this->redirect(Yii::$app->request->referrer);
             } else {
                 HtmlHelper::setMessage(Html::errorSummary($member));
             }
@@ -318,15 +321,22 @@ class MemberController extends FrontendController
             ['url' => '/member/center', 'label' => '會員中心'],
             ['label' => '最新客服回覆']
         ];
-        $list = CustomerServiceModel::query(['member_id' => yii::$app->user->getId(),
-            'category' => CustomerServiceModel::CATEGORY_ORDER]);
+        $list = CustomerServiceModel::query([
+            'member_id' => yii::$app->user->getId(),
+            'category' => CustomerServiceModel::CATEGORY_ORDER
+        ]);
         $count = CustomerServiceModel::count(['member_id' => yii::$app->user->getId()]);
         $logList = [];
         foreach ($list as $c) {
             $logList[$c->id] = CustomerServiceLogModel::findAll(['customer_service_id' => $c->id]);
         }
-        return $this->render('reply', ['breadcrumbs' => $breadcrumbs, "start" => $start,
-            'count' => $count, 'list' => $list, 'logList' => $logList]);
+        return $this->render('reply', [
+            'breadcrumbs' => $breadcrumbs,
+            "start" => $start,
+            'count' => $count,
+            'list' => $list,
+            'logList' => $logList
+        ]);
     }
 
     public function actionFbLogin()
@@ -357,11 +367,11 @@ class MemberController extends FrontendController
 
         $helper = $fb->getRedirectLoginHelper();
         try {
-//            $accessToken = $helper->getAccessToken();
+            //            $accessToken = $helper->getAccessToken();
             $accessToken = $helper->getAccessToken("https://lionstlu.org.tw/member/fb-login-callback");
         } catch (FacebookResponseException $e) {
             // When Graph returns an error
-//            echo $e->getCode();
+            //            echo $e->getCode();
             echo 'Graph returned an error: ' . $e->getMessage();
             exit;
         } catch (FacebookSDKException $e) {
@@ -369,7 +379,7 @@ class MemberController extends FrontendController
             echo 'Facebook SDK returned an error: ' . $e->getMessage();
             exit;
         }
-//var_dump($accessToken->getValue());exit;
+        //var_dump($accessToken->getValue());exit;
         if (!isset($accessToken)) {
             if ($helper->getError()) {
                 header('HTTP/1.0 401 Unauthorized');
@@ -378,7 +388,7 @@ class MemberController extends FrontendController
                 echo "Error Reason: " . $helper->getErrorReason() . "\n";
                 echo "Error Description: " . $helper->getErrorDescription() . "\n";
             } else {
-//                return $this->redirect($helper->getReRequestUrl("https://www.shallwe.com.tw/member/callback"));
+                //                return $this->redirect($helper->getReRequestUrl("https://www.shallwe.com.tw/member/callback"));
                 header('HTTP/1.0 400 Bad Request');
                 echo 'Bad request';
             }
@@ -400,7 +410,7 @@ class MemberController extends FrontendController
         // You can redirect them to a members-only page.
         //header('Location: https://example.com/members.php');
         $token = (string)$accessToken;
-//        $token = yii::$app->request->post("token");
+        //        $token = yii::$app->request->post("token");
         $fb = new FacebookGraph();
         $result = $fb->get("/me", [
             "access_token" => $token,
@@ -409,11 +419,11 @@ class MemberController extends FrontendController
 
         ]);
         $ref = yii::$app->session->get("ref");
-        if(empty($ref)) {
+        if (empty($ref)) {
             $ref = "/site/index";
         }
         //$bind = MemberBindModel::findOne(["platform_uid" => $result->token_for_business,
-            //"platform" => MemberBindModel::PLATFORM_FACEBOOK]);
+        //"platform" => MemberBindModel::PLATFORM_FACEBOOK]);
         $bind = null;
         if (empty($bind)) {
             $user = new MemberModel(["scenario" => MemberModel::SCENARIO_SIGNUP]);
@@ -426,7 +436,7 @@ class MemberController extends FrontendController
         }
         $user->username = isset($result->email) && !empty($result->email) ? $result->email : "facebook_" . $result->id;
         $user->email = isset($result->email) && !empty($result->email) ? $result->email : "";
-//        $user->mobile = isset($result->mobile_phone) && !empty($result->mobile_phone) ? $result->mobile_phone : "";
+        //        $user->mobile = isset($result->mobile_phone) && !empty($result->mobile_phone) ? $result->mobile_phone : "";
         $user->setPassword(StringUtil::generateRandomString(40));
         $user->name = $result->name;
         $user->status = MemberModel::STATUS_ONLINE;

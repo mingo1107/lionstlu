@@ -50,7 +50,7 @@ class FrontendController extends Controller
     {
         if (parent::beforeAction($action)) {
             if (!YII_DEBUG && HttpUtil::port() == 80) {
-                yii::$app->response->redirect(Url::base('https') . Url::current(), 301);
+                Yii::$app->response->redirect(Url::base('https') . Url::current(), 301);
             }
             $this->queryString = HttpUtil::buildQuery($_GET);
             return true;
@@ -62,7 +62,7 @@ class FrontendController extends Controller
     public function afterAction($action, $result)
     {
         $result = parent::afterAction($action, $result);
-        yii::$app->session->close();
+        Yii::$app->session->close();
         return $result;
     }
 
@@ -76,8 +76,8 @@ class FrontendController extends Controller
 
     public function kick()
     {
-        yii::$app->user->logout();
-        yii::$app->session->destroy();
+        Yii::$app->user->logout();
+        Yii::$app->session->destroy();
         header('Location: /site/login', true, 302);
         exit;
     }

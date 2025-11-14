@@ -232,17 +232,37 @@ class UserModel extends User implements IdentityInterface
      */
     public function validateAuthKey($authKey)
     {
-        $keyArray = explode("_", $authKey);
+        // 先嘗試使用 | 分隔符（新格式）
+        $keyArray = explode("|", $authKey);
+        // 如果失敗，嘗試使用 _ 分隔符（舊格式，向後兼容）
+        if (count($keyArray) != 4) {
+            // 舊格式：只分割前 3 個下劃線，剩下的作為 User Agent
+            $parts = [];
+            $remaining = $authKey;
+            for ($i = 0; $i < 3; $i++) {
+                $pos = strpos($remaining, '_');
+                if ($pos === false) {
+                    return false;
+                }
+                $parts[] = substr($remaining, 0, $pos);
+                $remaining = substr($remaining, $pos + 1);
+            }
+            $parts[] = $remaining; // 剩下的部分作為 User Agent
+            $keyArray = $parts;
+        }
+
         if (count($keyArray) != 4) {
             return false;
         }
 
-        if (is_numeric($keyArray[0])
+        if (
+            is_numeric($keyArray[0])
             && intval($keyArray[0]) > 0
             && intval($keyArray[0]) <= time()
             && $keyArray[1] == $this->getId()
             && $keyArray[3] == $_SERVER['HTTP_USER_AGENT']
-            && $keyArray[2] == HttpUtil::ip()) {
+            && $keyArray[2] == HttpUtil::ip()
+        ) {
             return true;
         } else {
             return false;
@@ -300,7 +320,8 @@ class UserModel extends User implements IdentityInterface
 
     public function generateAuthKey()
     {
-        $authKey = sprintf("%s_%s_%s_%s", time(), $this->getId(), HttpUtil::ip(), $_SERVER['HTTP_USER_AGENT']);
+        // 使用 | 作為分隔符，避免 User Agent 中的下劃線導致分割錯誤
+        $authKey = sprintf("%s|%s|%s|%s", time(), $this->getId(), HttpUtil::ip(), $_SERVER['HTTP_USER_AGENT']);
         HttpUtil::setCookie(self::LOGIN_KEY_SECRET, $authKey, time() + self::LOGIN_DURATION);
     }
 

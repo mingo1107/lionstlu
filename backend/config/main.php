@@ -10,7 +10,7 @@ return [
     'id' => 'ball-backend',
     'basePath' => dirname(__DIR__),
     'controllerNamespace' => 'backend\controllers',
-    'bootstrap' => ['log'],
+    'bootstrap' => ['log', 'user'], // 確保 user 組件在 bootstrap 階段初始化
     'modules' => [],
     'components' => [
         'request' => [
@@ -19,6 +19,7 @@ return [
         'user' => [
             'identityClass' => 'common\models\UserModel',
             'enableAutoLogin' => true,
+            'enableSession' => true, // 明確啟用 session（預設為 true，但明確設定更安全）
             'identityCookie' => ['name' => '_identity-ball-backend', 'httpOnly' => true],
             'on afterLogin' => function ($event) {
                 /**

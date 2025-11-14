@@ -12,7 +12,7 @@ $params = array_merge(
 return [
     'id' => 'ball',
     'basePath' => dirname(__DIR__),
-    'bootstrap' => ['log'],
+    'bootstrap' => ['log', 'user'], // 確保 user 組件在 bootstrap 階段初始化
     'controllerNamespace' => 'frontend\controllers',
     'components' => [
         'request' => [
@@ -21,7 +21,8 @@ return [
         'user' => [
             'identityClass' => 'common\models\MemberModel',
             'enableAutoLogin' => true,
-//            'identityCookie' => ['name' => '_identity-frontend', 'httpOnly' => true],
+            'enableSession' => true, // 明確啟用 session（預設為 true，但明確設定更安全）
+            'identityCookie' => ['name' => '_identity-frontend', 'httpOnly' => true],
             'on afterLogin' => function ($event) {
                 /**
                  * @var $identity MemberModel

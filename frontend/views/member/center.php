@@ -30,8 +30,8 @@ TwCityAsset::register($this);
                 <div class="panel-body">
                     <?= HtmlHelper::displayFlash() ?>
                     <form id="main-form" class="form-horizontal" method="post">
-                        <input type="hidden" name="<?= yii::$app->request->csrfParam ?>"
-                               value="<?= yii::$app->request->csrfToken ?>"/>
+                        <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>"
+                               value="<?= Yii::$app->request->csrfToken ?>"/>
                         <div class="form-group border-dashed">
                             <label for="" class="col-sm-2 col-xs-12 control-label">帳號</label>
                             <div class="col-sm-10 col-xs-12">
@@ -72,29 +72,15 @@ TwCityAsset::register($this);
                         </div>
                         <div class="form-group border-dashed">
                             <label for="" class="col-sm-2 col-xs-12 control-label">生日</label>
-                            <div class="col-md-2 col-sm-2 col-xs-12 add">
-                                <select class="form-control input-lg">
-                                    <option>年</option>
-                                    <?php for ($i = date('Y'); $i >= 1900; --$i): ?>
-                                        <option value="<?= $i ?>"><?= $i ?></option>
-                                    <?php endfor; ?>
-                                </select>
-                            </div>
-                            <div class="col-md-2 col-sm-2 col-xs-12 add">
-                                <select class="form-control input-lg">
-                                    <option>月</option>
-                                    <?php for ($i = 1; $i <= 12; ++$i): ?>
-                                        <option value="<?= $i ?>"><?= $i ?></option>
-                                    <?php endfor; ?>
-                                </select>
-                            </div>
-                            <div class="col-md-2 col-sm-2 col-xs-12 add">
-                                <select class="form-control input-lg">
-                                    <option>日</option>
-                                    <?php for ($i = 1; $i <= 31; ++$i): ?>
-                                        <option value="<?= $i ?>"><?= $i ?></option>
-                                    <?php endfor; ?>
-                                </select>
+                            <div class="col-sm-10 col-xs-12">
+                                <div class="input-group date">
+                                    <?= Html::activeTextInput($member, 'birthday',
+                                        ['class' => 'form-control input-lg', 'placeholder' => '請選擇生日',
+                                            'readonly' => true]) ?>
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                         <div id="city-selector" class="form-group border-dashed">
@@ -152,6 +138,25 @@ TwCityAsset::register($this);
 
         $('#main-form').submit(function () {
             return $(this).formValidate(formParams);
+        });
+
+        // 初始化生日 datepicker
+        $('#<?=Html::getInputId($member, 'birthday')?>').closest('.input-group.date').datetimepicker({
+            format: 'YYYY-MM-DD',
+            locale: 'zh-TW',
+            maxDate: moment(), // 不能選擇未來的日期
+            viewMode: 'years', // 從年份開始選擇
+            icons: {
+                time: 'glyphicon glyphicon-time',
+                date: 'glyphicon glyphicon-calendar',
+                up: 'glyphicon glyphicon-chevron-up',
+                down: 'glyphicon glyphicon-chevron-down',
+                previous: 'glyphicon glyphicon-chevron-left',
+                next: 'glyphicon glyphicon-chevron-right',
+                today: 'glyphicon glyphicon-screenshot',
+                clear: 'glyphicon glyphicon-trash',
+                close: 'glyphicon glyphicon-remove'
+            }
         });
 
         new TwCitySelector({

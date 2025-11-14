@@ -38,7 +38,7 @@ class AccessUserFilter extends ActionFilter
         /**
          * @var $identity UserModel
          */
-        $identity = yii::$app->user->getIdentity();
+        $identity = Yii::$app->user->getIdentity();
         $accessList = $identity->getAccessList();
         // TODO validate functions precisely by patterns
         if (isset($accessList[$access->id])) {
