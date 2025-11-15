@@ -24,6 +24,7 @@ use Yii;
  * @property string $district
  * @property string $address
  * @property string $mobile
+ * @property int $area_id 區域ID
  * @property string $create_time
  * @property string $update_time
  * @property int $login_count
@@ -47,7 +48,7 @@ class Member extends \yii\db\ActiveRecord
     {
         return [
             [['username', 'password_hash', 'password_reset_token', 'email', 'name', 'create_time'], 'required'],
-            [['status', 'validate', 'role', 'login_count'], 'integer'],
+            [['status', 'validate', 'role', 'login_count', 'area_id'], 'integer'],
             [['birthday', 'create_time', 'update_time', 'last_login_time'], 'safe'],
             [['username', 'country', 'city', 'district', 'mobile'], 'string', 'max' => 64],
             [['password_hash', 'password_reset_token', 'email'], 'string', 'max' => 256],
@@ -81,6 +82,7 @@ class Member extends \yii\db\ActiveRecord
             'district' => 'District',
             'address' => 'Address',
             'mobile' => 'Mobile',
+            'area_id' => 'Area ID',
             'create_time' => 'Create Time',
             'update_time' => 'Update Time',
             'login_count' => 'Login Count',

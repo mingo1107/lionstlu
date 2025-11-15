@@ -6,6 +6,7 @@ namespace backend\controllers;
 use ball\helper\HtmlHelper;
 use ball\helper\Pagination;
 use ball\helper\SQLHelper;
+use common\models\AreaModel;
 use common\models\MemberModel;
 use Yii;
 use yii\helpers\Html;
@@ -17,10 +18,17 @@ class MemberController extends BackendController
     public function actionIndex()
     {
         $start = Pagination::getOffset();
-        $search = SQLHelper::buildSearchQuery(['status', 'keyword']);
+        $search = SQLHelper::buildSearchQuery(['status', 'keyword', 'area_id', 'is_self_register']);
         $list = MemberModel::query($search, Pagination::PAGE_SIZE, $start);
         $count = MemberModel::count($search);
-        return $this->render('index', ['list' => $list, 'start' => $start, 'count' => $count]);
+        $areaList = AreaModel::findAllForSelect();
+        return $this->render('index', [
+            'list' => $list,
+            'start' => $start,
+            'count' => $count,
+            'areaList' => $areaList,
+            'search' => $search
+        ]);
     }
 
     public function actionCreate()

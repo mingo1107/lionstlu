@@ -34,13 +34,25 @@
   - [x] 未登入導向首頁（選單隱藏保護頁，直接輸入網址導向首頁）
 
 ## 後台（Backend）
-- [ ] 會員列表檢視與搜尋
+- [x] 區域管理功能（Area CRUD）
+  - 入口：`/area/index`（backend/controllers/AreaController）
+  - [x] 區域列表（支援關鍵字、建立者搜尋，分頁顯示）
+  - [x] 建立新區域（自動記錄建立者）
+  - [x] 編輯區域資料（區域名稱、排序）
+  - [x] 刪除區域
+  - [x] 建立 Area Model（Area.php, AreaModel.php）
+  - [x] 更新 Member Model 支援 area_id 欄位
+- [x] 會員列表檢視與搜尋
   - 入口：`/member/index`（backend/controllers/MemberController::actionIndex）
-  - [ ] 關鍵字/狀態搜尋、分頁
-- [ ] 會員資料編輯
+  - [x] 關鍵字/狀態/區域/自行註冊搜尋、分頁
+  - [x] 列表顯示：帳號/姓名、區域、狀態、驗證狀態、登入次數、最後登入時間
+- [x] 會員資料編輯
   - 入口：`/member/update?id=...`（MemberController::actionUpdate）
-  - [ ] 欄位驗證（密碼異動、Email 格式等）
-  - [ ] 成功/失敗訊息處理
+  - [x] 欄位驗證（密碼異動、Email 格式等）
+  - [x] 密碼欄位選填（留空則不更新密碼）
+  - [x] 區域選擇下拉選單
+  - [x] 城市/地區選擇器正確顯示已儲存值
+  - [x] 成功/失敗訊息處理
 
 ## 測試（Testing）
 - [x] 建立測試帳號（一般會員、管理員）
@@ -49,8 +61,8 @@
   - [x] 忘記密碼發信與收信
   - [x] 重設密碼成功與 token 異常情境
   - [x] 權限頁面導向與登入後導回
-  - [ ] 後台列表搜尋/分頁
-  - [ ] 後台編輯資料與驗證訊息
+  - [x] 後台列表搜尋/分頁
+  - [x] 後台編輯資料與驗證訊息
 
 ## 文件（Docs）
 - [ ] 更新 markdown：

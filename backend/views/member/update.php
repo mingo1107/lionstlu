@@ -5,6 +5,7 @@ use backend\widget\Breadcrumbs;
 use backend\widget\InlineScript;
 use ball\helper\HtmlHelper;
 use common\assets\TwCityAsset;
+use common\models\AreaModel;
 use common\models\MemberModel;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
@@ -91,7 +92,8 @@ TwCityAsset::register($this);
                                        class="col-sm-2 control-label">密碼</label>
                                 <div class="col-sm-10">
                                     <?= Html::activePasswordInput($model, 'password',
-                                        ['class' => 'form-control']) ?>
+                                        ['class' => 'form-control', 'placeholder' => '留空則不更新密碼']) ?>
+                                    <span class="help-block m-b-none">留空則不更新密碼，如需更新請輸入至少8個字元</span>
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
@@ -101,7 +103,7 @@ TwCityAsset::register($this);
                                        class="col-sm-2 control-label">請再輸入一次密碼</label>
                                 <div class="col-sm-10">
                                     <?= Html::activePasswordInput($model, 'password2',
-                                        ['class' => 'form-control']) ?>
+                                        ['class' => 'form-control', 'placeholder' => '留空則不更新密碼']) ?>
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
@@ -141,6 +143,22 @@ TwCityAsset::register($this);
                                 <div class="col-sm-10">
                                     <?= Html::activeTextInput($model, 'mobile',
                                         ['class' => 'form-control', 'data-v-rule' => '', 'data-v-msg' => '請填入手機']) ?>
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+
+                            <div class="form-group">
+                                <label for="<?= Html::getInputId($model, 'area_id') ?>"
+                                       class="col-sm-2 control-label">區域</label>
+                                <div class="col-sm-10">
+                                    <?php
+                                    $areaList = AreaModel::findAllForSelect();
+                                    $areaOptions = ArrayHelper::merge(['0' => '請選擇'], ArrayHelper::map($areaList, 'id', 'area_name'));
+                                    // 如果 area_id 為 NULL 或空，設為 0
+                                    $selectedAreaId = !empty($model->area_id) ? $model->area_id : 0;
+                                    ?>
+                                    <?= Html::dropDownList(Html::getInputName($model, 'area_id'), $selectedAreaId, $areaOptions,
+                                        ['class' => 'form-control']) ?>
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
@@ -200,12 +218,17 @@ TwCityAsset::register($this);
                 '<?= Html::getInputName($model, 'password') ?>': [function () {
                     var password = document.getElementById('<?= Html::getInputId($model, 'password') ?>');
                     var password2 = document.getElementById('<?= Html::getInputId($model, 'password2') ?>');
+                    // 如果密碼為空，則不驗證（允許不更新密碼）
+                    if ($.trim(password.value) === '' && $.trim(password2.value) === '') {
+                        return true;
+                    }
+                    // 如果密碼有輸入，則驗證長度和一致性
                     if ($.trim(password.value).length >= 8 && password.value === password2.value) {
                         return true;
                     } else {
                         return false;
                     }
-                }, '密碼長度必須大於8個字元而且密碼必須一致']
+                }, '密碼長度必須大於8個字元而且密碼必須一致（留空則不更新密碼）']
             };
 
             $('#main-form').submit(function () {
@@ -217,8 +240,8 @@ TwCityAsset::register($this);
                 elCounty: "#<?=Html::getInputId($model, 'city')?>", // 在 el 裡查找 dom
                 elDistrict: "#<?=Html::getInputId($model, 'district')?>", // 在 el 裡查找 dom
                 elZipcode: "#<?=Html::getInputId($model, 'zip')?>", // 在 el 裡查找 dom
-                selectedCounty: '<?=$model->country?>',
-                selectedDistrict: '<?=$model->city?>',
+                selectedCounty: '<?=Html::encode($model->city ?: '')?>',
+                selectedDistrict: '<?=Html::encode($model->district ?: '')?>',
                 countyClassName: "form-control margin-bottom-2",
                 countyFiledName: "<?=Html::getInputName($model, 'city')?>",
                 districtClassName: "form-control margin-bottom-2",

@@ -57,8 +57,8 @@ class MemberModel extends Member implements IdentityInterface
             [['password'], 'safe', 'on' => static::SCENARIO_CREATE],
             [['password_hash', 'email', 'mobile', 'city', 'district', 'mobile', 'zip', 'name'], 'required', 'on' => self::SCENARIO_UPDATE],
             [['password', 'password2'], 'safe', 'on' => static::SCENARIO_UPDATE],
-            [['username', 'name'], 'required', 'on' => self::SCENARIO_SIGNUP],
-            [['password'], 'safe', 'on' => static::SCENARIO_SIGNUP],
+            [['username', 'name', 'area_id'], 'required', 'on' => self::SCENARIO_SIGNUP],
+            [['password', 'area_id'], 'safe', 'on' => static::SCENARIO_SIGNUP],
             [['password'], 'required', 'on' => self::SCENARIO_PASSWORD_RESET]
         );
         return $rules;
@@ -73,10 +73,22 @@ class MemberModel extends Member implements IdentityInterface
                 $this->country = '台灣';
                 $this->status = self::STATUS_ONLINE;
                 $this->validate = self::VALIDATE_NO;
+                // 確保 area_id 有值（註冊時必填，不能為 0）
+                if (empty($this->area_id) || $this->area_id == '0') {
+                    $this->area_id = null; // 讓驗證規則處理必填錯誤
+                }
                 $this->create_time = new Expression('now()');
             } else if ($this->scenario == self::SCENARIO_UPDATE) {
-                if (strlen(trim($this->password)) >= 8 && $this->password === $this->password2) {
-                    $this->setPassword($this->password);
+                // 如果密碼有輸入，且長度 >= 8 且兩次輸入一致，則更新密碼
+                // 如果密碼為空，則不更新密碼
+                if (!empty(trim($this->password))) {
+                    if (strlen(trim($this->password)) >= 8 && $this->password === $this->password2) {
+                        $this->setPassword($this->password);
+                    }
+                }
+                // 如果 area_id 為空或 NULL，設為 0
+                if (empty($this->area_id) && $this->area_id !== '0') {
+                    $this->area_id = 0;
                 }
                 $this->update_time = new Expression('now()');
             } else if ($this->scenario == static::SCENARIO_PASSWORD_RESET) {
@@ -149,18 +161,37 @@ class MemberModel extends Member implements IdentityInterface
      */
     public static function query(array $search, int $limit = null, int $offset = null)
     {
-        $sql = "SELECT * FROM member WHERE 1 = 1 ";
+        $sql = "SELECT m.*, a.area_name FROM member m LEFT JOIN area a ON m.area_id = a.id WHERE 1 = 1 ";
         $params = [];
         if (!empty($search['keyword'])) {
-            $sql .= " and (name like :keyword)";
+            $sql .= " and (m.name like :keyword OR m.username like :keyword OR m.email like :keyword)";
             $params[":keyword"] = "%" . $search['keyword'] . "%";
         }
 
-        if ($search['status'] !== '') {
-            $sql .= " and status = :status";
+        if (isset($search['status']) && $search['status'] !== '') {
+            $sql .= " and m.status = :status";
             $params[":status"] = $search['status'];
         }
-        $sql .= " order by id desc ";
+
+        if (isset($search['area_id']) && $search['area_id'] !== '') {
+            $sql .= " and m.area_id = :area_id";
+            $params[":area_id"] = $search['area_id'];
+        }
+
+        // 自行註冊判斷：前台註冊的會員通常會有 register_token
+        // 如果 is_self_register = 1，表示自行註冊（前台註冊，有 register_token）
+        // 如果 is_self_register = 0，表示後台建立（沒有 register_token 或 register_token 為空）
+        if (isset($search['is_self_register']) && $search['is_self_register'] !== '') {
+            if ($search['is_self_register'] == '1') {
+                // 自行註冊：有 register_token 的會員
+                $sql .= " and m.register_token IS NOT NULL AND m.register_token != ''";
+            } else if ($search['is_self_register'] == '0') {
+                // 後台建立：沒有 register_token 或 register_token 為空的會員
+                $sql .= " and (m.register_token IS NULL OR m.register_token = '')";
+            }
+        }
+
+        $sql .= " order by m.id desc ";
         if ($limit !== null) {
             $sql .= " limit $limit";
         }
@@ -177,17 +208,34 @@ class MemberModel extends Member implements IdentityInterface
      */
     public static function count(array $search = [])
     {
-        $sql = "SELECT count(*) FROM member WHERE 1 = 1 ";
+        $sql = "SELECT count(*) FROM member m WHERE 1 = 1 ";
         $params = [];
         if (!empty($search['keyword'])) {
-            $sql .= " and name like :keyword";
+            $sql .= " and (m.name like :keyword OR m.username like :keyword OR m.email like :keyword)";
             $params[":keyword"] = "%" . $search['keyword'] . "%";
         }
 
-        if (!empty($search['status'])) {
-            $sql .= " and status = :status";
+        if (isset($search['status']) && $search['status'] !== '') {
+            $sql .= " and m.status = :status";
             $params[":status"] = $search['status'];
         }
+
+        if (isset($search['area_id']) && $search['area_id'] !== '') {
+            $sql .= " and m.area_id = :area_id";
+            $params[":area_id"] = $search['area_id'];
+        }
+
+        // 自行註冊篩選
+        if (isset($search['is_self_register']) && $search['is_self_register'] !== '') {
+            if ($search['is_self_register'] == '1') {
+                // 自行註冊：有 register_token 的會員
+                $sql .= " and m.register_token IS NOT NULL AND m.register_token != ''";
+            } else if ($search['is_self_register'] == '0') {
+                // 後台建立：沒有 register_token 或 register_token 為空的會員
+                $sql .= " and (m.register_token IS NULL OR m.register_token = '')";
+            }
+        }
+
         return self::getDb()->createCommand($sql, $params)->queryScalar();
     }
 
@@ -393,5 +441,14 @@ class MemberModel extends Member implements IdentityInterface
         // 使用 | 作為分隔符，避免 User Agent 中的下劃線導致分割錯誤
         $authKey = sprintf("%s|%s|%s|%s", time(), $this->getId(), HttpUtil::ip(), $_SERVER['HTTP_USER_AGENT']);
         HttpUtil::setCookie(self::LOGIN_KEY_SECRET, $authKey, time() + self::LOGIN_DURATION);
+    }
+
+    /**
+     * 取得關聯的區域
+     * @return \yii\db\ActiveQuery
+     */
+    public function getArea()
+    {
+        return $this->hasOne(AreaModel::class, ['id' => 'area_id']);
     }
 }

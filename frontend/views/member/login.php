@@ -4,13 +4,16 @@ use backend\widget\InlineScript;
 use ball\api\ResponseCode;
 use ball\helper\HtmlHelper;
 use ball\util\Url;
+use common\models\AreaModel;
 use frontend\assets\FormValidateAsset;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 
 /* @var $this \yii\web\View */
 /* @var $model \frontend\models\LoginForm */
 /* @var $signupModel \common\models\MemberModel */
 /* @var $showSignup bool 是否顯示註冊表單 */
+/* @var $areaList \common\models\AreaModel[] */
 
 FormValidateAsset::register($this);
 ?>
@@ -123,6 +126,22 @@ FormValidateAsset::register($this);
                             ]
                         ) ?>
                     </div>
+                    <div class="form-group">
+                        <label for="<?= Html::getInputId($signupModel, 'area_id') ?>" class="sr-only">區域</label>
+                        <?php
+                        $areaOptions = ArrayHelper::merge(['' => '請選擇區域'], ArrayHelper::map($areaList, 'id', 'area_name'));
+                        ?>
+                        <?= Html::activeDropDownList(
+                            $signupModel,
+                            'area_id',
+                            $areaOptions,
+                            [
+                                'class' => 'form-control input-lg',
+                                'data-v-rule' => '',
+                                'data-v-msg' => '請選擇區域'
+                            ]
+                        ) ?>
+                    </div>
                     <?= HtmlHelper::displayFlash() ?>
                     <input class="btn btn-success btn-block mt15 mb10 btn-xlg" type="submit" value="註冊">
                 </fieldset>
@@ -179,7 +198,17 @@ FormValidateAsset::register($this);
         });
 
         $('#signup-form').submit(function() {
-            if ($(this).formValidate()) {
+            var formParams = {
+                '<?= Html::getInputName($signupModel, 'area_id') ?>': [function() {
+                    var areaId = document.getElementById('<?= Html::getInputId($signupModel, 'area_id') ?>');
+                    if (areaId.value && areaId.value !== '') {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }, '請選擇區域']
+            };
+            if ($(this).formValidate(formParams)) {
                 $('input[type="submit"]').attr('disabled', 'disabled');
                 return true;
             }

@@ -9,6 +9,7 @@ use ball\helper\Pagination;
 use ball\util\HttpUtil;
 use ball\util\StringUtil;
 use ball\util\Url;
+use common\models\AreaModel;
 use common\models\CustomerServiceLogModel;
 use common\models\CustomerServiceModel;
 use common\models\MemberBindModel;
@@ -101,10 +102,14 @@ class MemberController extends FrontendController
             }
         }
 
+        // 取得區域列表供註冊表單使用
+        $areaList = AreaModel::findAllForSelect();
+        
         return $this->render('login', [
             'model' => $model,
             'signupModel' => $signupModel,
             'showSignup' => $showSignup, // 傳遞標記給視圖
+            'areaList' => $areaList, // 區域列表
         ]);
     }
 

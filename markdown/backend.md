@@ -49,6 +49,11 @@
   - `index`：會員列表（支援狀態、關鍵字搜尋，分頁顯示）
   - `create`：建立新會員
   - `update`：編輯會員資料（含密碼、Email、個人資訊等，具表單驗證）
+- `AreaController`（區域管理）
+  - `index`：區域列表（支援關鍵字、建立者搜尋，分頁顯示）
+  - `create`：建立新區域（自動記錄建立者）
+  - `update`：編輯區域資料（區域名稱、排序）
+  - `delete`：刪除區域
 - `UserController`（後台人員）
   - `index/create/update/delete`
   - 指派 `role_id` 或自訂 `access_list`
