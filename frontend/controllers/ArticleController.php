@@ -43,8 +43,17 @@ class ArticleController extends FrontendController
         if (empty($article)) {
             return $this->redirect(['/site/index']);
         }
-        ArticleModel::updateViewCount($article->id);
+        
+        // 檢查文章所屬分類是否需要登入
         $category = ArticleCategoryModel::findOne(['id' => $article->category_id]);
+        if (!empty($category) && !empty($category->is_login) && $category->is_login == 1) {
+            if (Yii::$app->user->isGuest) {
+                // 未登入，導向首頁
+                return $this->redirect(['/site/index']);
+            }
+        }
+        
+        ArticleModel::updateViewCount($article->id);
         $breadcrumbs = [
             ['url' => '/article/category?id=' . $category->id, 'label' => $category->name]
         ];
@@ -123,6 +132,15 @@ class ArticleController extends FrontendController
         if (empty($category)) {
             return $this->redirect(['/site/index']);
         }
+        
+        // 檢查是否需要登入
+        if (!empty($category->is_login) && $category->is_login == 1) {
+            if (Yii::$app->user->isGuest) {
+                // 未登入，導向首頁
+                return $this->redirect(['/site/index']);
+            }
+        }
+        
         $list = ArticleModel::search([
             'category' => $category->id
         ], Pagination::PAGE_SIZE, $start);

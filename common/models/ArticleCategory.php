@@ -11,6 +11,7 @@ use Yii;
  * @property int $status
  * @property string $name
  * @property int $sort
+ * @property int $is_login 是否需要登入（0:不需要, 1:需要）
  * @property string $create_time
  * @property string $update_time
  */
@@ -30,7 +31,7 @@ class ArticleCategory extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['status', 'sort'], 'integer'],
+            [['status', 'sort', 'is_login'], 'integer'],
             [['name', 'create_time'], 'required'],
             [['create_time', 'update_time'], 'safe'],
             [['name'], 'string', 'max' => 64],
@@ -47,6 +48,7 @@ class ArticleCategory extends \yii\db\ActiveRecord
             'status' => 'Status',
             'name' => 'Name',
             'sort' => 'Sort',
+            'is_login' => 'Is Login',
             'create_time' => 'Create Time',
             'update_time' => 'Update Time',
         ];

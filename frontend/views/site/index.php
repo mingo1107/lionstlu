@@ -24,21 +24,25 @@ use frontend\widget\Carousel;
                             <img src="/images/icon1.png" width="120" height="120"> 
                             登入 </a>
                         </div>       
+                       <?php if (!Yii::$app->user->isGuest): ?>
                        <div class=" col-4" >   
-                            <a target=”_blank” href="#">
+                            <a target="_blank" href="#">
                             <img src="/images/icon2.png" width="120" height="120"> 
                             直播</a>
-                         </div>                                   
+                         </div>
+                       <?php endif; ?>
                        <div class=" col-4" >  
-                            <a  target=”_blank” href="https://www.facebook.com/LionsUniversity/"> 
+                            <a  target="_blank" href="https://www.facebook.com/LionsUniversity/"> 
                             <img src="/images/icon3.png" width="120" height="120">  
                             臉書</a>
                          </div>         
+                        <?php if (!Yii::$app->user->isGuest): ?>
                         <div class=" col-4" >   
-                            <a target=”_blank”  href=" https://drive.google.com/drive/folders/1VOenFSsqeW-PQ1DOeIkCfP2Jb4u9hnGS?usp=sharing">
+                            <a target="_blank"  href=" https://drive.google.com/drive/folders/1VOenFSsqeW-PQ1DOeIkCfP2Jb4u9hnGS?usp=sharing">
                             <img src="/images/icon4.png" width="120" height="120"> 
                             影片回放 </a>
-                         </div>                    
+                         </div>
+                        <?php endif; ?>                    
                         <div class=" col-4" >  
                             <a  target=”_blank” href="https://calendar.google.com/calendar/u/0?cid=dGx1QHlhZ293dXMuY29t">  
                             <img src="/images/icon5.png" width="120" height="120"> 

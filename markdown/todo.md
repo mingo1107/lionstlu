@@ -27,11 +27,11 @@
   - 入口：`/member/reset-password?token=...`（MemberController::actionResetPassword）
   - [x] Token 驗證/過期處理
   - [x] 成功後導向登入
-- [ ] 權限保護頁（需登入）
+- [x] 權限保護頁（需登入）
   - 頁面：學習中心、工具下載、直播、影片回放
-  - [ ] 設計 routes 與 views
-  - [ ] 以 AccessControl 或 beforeAction 驗證登入
-  - [ ] 未登入導向登入頁並保留 referrer
+  - [x] 設計 routes 與 views（學習中心、工具下載透過 article_category.is_login 控制）
+  - [x] 以 AccessControl 或 beforeAction 驗證登入（ArticleController::actionCategory 與 actionDetail）
+  - [x] 未登入導向首頁（選單隱藏保護頁，直接輸入網址導向首頁）
 
 ## 後台（Backend）
 - [ ] 會員列表檢視與搜尋
@@ -48,7 +48,7 @@
   - [x] 登入/登出
   - [x] 忘記密碼發信與收信
   - [x] 重設密碼成功與 token 異常情境
-  - [ ] 權限頁面導向與登入後導回
+  - [x] 權限頁面導向與登入後導回
   - [ ] 後台列表搜尋/分頁
   - [ ] 後台編輯資料與驗證訊息
 

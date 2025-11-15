@@ -46,7 +46,9 @@
   - `record`：依票數排序之統計頁
   - 角色 7 僅能管理自己活動
 - `MemberController`（會員）
-  - `index/create/update`
+  - `index`：會員列表（支援狀態、關鍵字搜尋，分頁顯示）
+  - `create`：建立新會員
+  - `update`：編輯會員資料（含密碼、Email、個人資訊等，具表單驗證）
 - `UserController`（後台人員）
   - `index/create/update/delete`
   - 指派 `role_id` 或自訂 `access_list`

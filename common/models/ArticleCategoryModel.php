@@ -100,12 +100,21 @@ class ArticleCategoryModel extends ArticleCategory
 
     /**
      * @param int $status
+     * @param bool $checkLogin 是否檢查登入狀態（true: 只返回不需要登入或已登入可訪問的分類）
      * @return static[]
      * @throws \yii\db\Exception
      */
-    public static function findByStatus(int $status)
+    public static function findByStatus(int $status, bool $checkLogin = false)
     {
-        $sql = "SELECT * FROM article_category WHERE status = :status ORDER BY sort DESC";
-        return self::getDb()->createCommand($sql, [":status" => $status])->queryAll(PDO::FETCH_OBJ);
+        $sql = "SELECT * FROM article_category WHERE status = :status";
+        $params = [":status" => $status];
+        
+        // 如果需要檢查登入狀態，過濾掉需要登入但用戶未登入的分類
+        if ($checkLogin && \Yii::$app->user->isGuest) {
+            $sql .= " AND (is_login = 0 OR is_login IS NULL)";
+        }
+        
+        $sql .= " ORDER BY sort DESC";
+        return self::getDb()->createCommand($sql, $params)->queryAll(PDO::FETCH_OBJ);
     }
 }

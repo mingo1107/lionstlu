@@ -30,11 +30,13 @@
   - `xhr-vote`：會員投票（每日一次或一次性，依活動限制）
   - `xhr-share`：分享計數
 - `MemberController`
-  - 登入與註冊：`login`、`signup`
-  - 密碼：`forgetPassword`、`resetPassword`
-  - 會員中心：`center`（修改個資/密碼）
-  - 客服：`service`（送單）、`reply`（查看回覆與紀錄）
+  - 登入與註冊：`login`（整合登入與註冊表單）、`signup`（重定向至 login）
+  - 密碼：`forgetPassword`（發送重置信件）、`resetPassword`（以 token 重設密碼）
+  - Email 驗證：`verifyEmail`（驗證註冊 Email）
+  - 會員中心：`center`（修改個資/密碼，需登入）
+  - 客服：`service`（送單，需登入）、`reply`（查看回覆與紀錄，需登入）
   - Facebook：`fb-login`、`fb-login-callback`、`xhr-fb-login`
+  - 權限控制：`center`、`service`、`reply` 需登入（`AccessControl`）
 - `CheckoutController`
   - `index`：結帳（未登入可於流程中建帳號），建立 `Orders/OrdersDetail/OrdersStatusFlow`、更新庫存（含 rollback）
   - `finish`：完成頁
