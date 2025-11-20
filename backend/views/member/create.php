@@ -36,14 +36,12 @@ TwCityAsset::register($this);
                         </div>
                         <div class="ibox-content">
                             <?= HtmlHelper::displayFlash() ?>
-                            <input type="hidden" name="<?= yii::$app->request->csrfParam ?>"
-                                   value="<?= yii::$app->request->csrfToken ?>"/>
+                            <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>"
+                                   value="<?= Yii::$app->request->csrfToken ?>"/>
                             <div class="form-group">
-                                <label for="<?= Html::getInputId($model, 'username') ?>"
-                                       class="col-sm-2 control-label">ID</label>
+                                <label class="col-sm-2 control-label">ID</label>
                                 <div class="col-sm-10">
-                                    <?= Html::activeTextInput($model, 'username',
-                                        ['class' => 'form-control', 'data-v-rule' => '', 'data-v-msg' => '請填入名稱']) ?>
+                                    <p class="form-control-static">系統將自動使用 E-mail 作為會員 ID</p>
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>

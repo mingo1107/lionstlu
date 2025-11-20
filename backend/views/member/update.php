@@ -37,8 +37,16 @@ TwCityAsset::register($this);
                         </div>
                         <div class="ibox-content">
                             <?= HtmlHelper::displayFlash() ?>
-                            <input type="hidden" name="<?= yii::$app->request->csrfParam ?>"
-                                   value="<?= yii::$app->request->csrfToken ?>"/>
+                            <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>"
+                                   value="<?= Yii::$app->request->csrfToken ?>"/>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">會員編號</label>
+                                <div class="col-lg-10">
+                                    <p class="form-control-static"><?= Html::encode($model->member_code ?: '－') ?></p>
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">ID</label>
                                 <div class="col-lg-10">

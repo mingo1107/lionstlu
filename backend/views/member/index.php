@@ -32,23 +32,35 @@ use yii\helpers\Html;
     <div class="row">
         <form class="navbar-form navbar-left" role="search" method="get">
             <div class="form-group">
-                <?= Html::dropDownList('area_id', isset($search['area_id']) ? $search['area_id'] : '',
+                <?= Html::dropDownList(
+                    'area_id',
+                    isset($search['area_id']) ? $search['area_id'] : '',
                     ArrayHelper::merge(['' => '全部區域'], ArrayHelper::map($areaList, 'id', 'area_name')),
-                    ['class' => 'form-control']) ?>
+                    ['class' => 'form-control']
+                ) ?>
             </div>
             <div class="form-group">
-                <?= Html::dropDownList('status', isset($search['status']) ? $search['status'] : '',
+                <?= Html::dropDownList(
+                    'status',
+                    isset($search['status']) ? $search['status'] : '',
                     ArrayHelper::merge(['' => '全部狀態'], MemberModel::$statusLabel),
-                    ['class' => 'form-control']) ?>
+                    ['class' => 'form-control']
+                ) ?>
             </div>
             <div class="form-group">
-                <?= Html::dropDownList('is_self_register', isset($search['is_self_register']) ? $search['is_self_register'] : '',
+                <?= Html::dropDownList(
+                    'is_self_register',
+                    isset($search['is_self_register']) ? $search['is_self_register'] : '',
                     ['' => '全部', '1' => '自行註冊', '0' => '後台建立'],
-                    ['class' => 'form-control']) ?>
+                    ['class' => 'form-control']
+                ) ?>
             </div>
             <div class="form-group">
-                <?= Html::textInput('keyword', isset($search['keyword']) ? $search['keyword'] : '',
-                    ['class' => 'form-control', 'placeholder' => '搜尋關鍵字（姓名/帳號/Email）']) ?>
+                <?= Html::textInput(
+                    'keyword',
+                    isset($search['keyword']) ? $search['keyword'] : '',
+                    ['class' => 'form-control', 'placeholder' => '搜尋關鍵字（姓名/帳號/Email）']
+                ) ?>
             </div>
             <button type="submit" class="btn btn-default">搜尋</button>
             <a href="/<?= Yii::$app->controller->id ?>/index" class="btn btn-default">清除</a>
@@ -62,50 +74,54 @@ use yii\helpers\Html;
                     <?= HtmlHelper::displayFlash() ?>
                     <div>
                         <a href="/<?= Yii::$app->controller->id ?>/create"
-                           class="btn btn-primary ">建立<?= $actionLabel ?></a>
+                            class="btn btn-primary">建立<?= $actionLabel ?></a>
+                        <a href="/<?= Yii::$app->controller->id ?>/import"
+                            class="btn btn-success">匯入<?= $actionLabel ?></a>
                     </div>
                     <?php if (!empty($list)): ?>
                         <div class="table-responsive">
                             <table class="table table-striped table-bordered table-hover dataTables-example">
                                 <thead>
-                                <tr>
-                                    <th class="text-center" width="5%">
-                                        <input type="checkbox" id="_select-all" name="_select-all" value="1"/>
-                                    </th>
-                                    <th class="text-center" width="18%">帳號/姓名</th>
-                                    <th class="text-center" width="10%">區域</th>
-                                    <th class="text-center" width="8%">狀態</th>
-                                    <th class="text-center" width="8%">驗證狀態</th>
-                                    <th class="text-center" width="8%">登入次數</th>
-                                    <th class="text-center" width="12%">最後登入時間</th>
-                                    <th class="text-center" width="10%">操作</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <?php foreach ($list as $model): ?>
                                     <tr>
                                         <th class="text-center" width="5%">
-                                            <input type="checkbox" id="_select-<?= $model->id ?>" name="_select[]"
-                                                   value="<?= $model->id ?>"/>
+                                            <input type="checkbox" id="_select-all" name="_select-all" value="1" />
                                         </th>
-                                        <td class="text-center">
-                                            <div><?= Html::encode($model->username) ?></div>
-                                            <div style="font-size: 12px; color: #999;"><?= Html::encode($model->name) ?></div>
-                                        </td>
-                                        <td class="text-center"><?= !empty($model->area_name) ? Html::encode($model->area_name) : '未設定' ?></td>
-                                        <td class="text-center"><?= MemberModel::$statusLabel[$model->status] ?></td>
-                                        <td class="text-center"><?= isset(MemberModel::$validateLabel[$model->validate]) ? MemberModel::$validateLabel[$model->validate] : '未知' ?></td>
-                                        <td class="text-center"><?= $model->login_count ?></td>
-                                        <td class="text-center"><?= $model->last_login_time ?: '無' ?></td>
-                                        <td class="text-center">
-                                            <a class="btn btn-general btn-block"
-                                               href="/<?= Yii::$app->controller->id ?>/update<?= HttpUtil::buildQuery($_GET, [], ['id' => $model->id]) ?>">編輯</a>
-                                            <a class="btn btn-outline-danger btn-block"
-                                               onclick="return confirm('確認刪除?')"
-                                               href="/<?= Yii::$app->controller->id ?>/delete<?= HttpUtil::buildQuery($_GET, [], ['id' => $model->id]) ?>">刪除</a>
-                                        </td>
+                                        <th class="text-center" width="8%">會員編號</th>
+                                        <th class="text-center" width="16%">帳號/姓名</th>
+                                        <th class="text-center" width="10%">區域</th>
+                                        <th class="text-center" width="8%">狀態</th>
+                                        <th class="text-center" width="8%">驗證狀態</th>
+                                        <th class="text-center" width="8%">登入次數</th>
+                                        <th class="text-center" width="12%">最後登入時間</th>
+                                        <th class="text-center" width="10%">操作</th>
                                     </tr>
-                                <?php endforeach; ?>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($list as $model): ?>
+                                        <tr>
+                                            <th class="text-center" width="5%">
+                                                <input type="checkbox" id="_select-<?= $model->id ?>" name="_select[]"
+                                                    value="<?= $model->id ?>" />
+                                            </th>
+                                            <td class="text-center"><?= Html::encode($model->member_code ?: '－') ?></td>
+                                            <td class="text-center">
+                                                <div><?= Html::encode($model->username) ?></div>
+                                                <div style="font-size: 12px; color: #999;"><?= Html::encode($model->name) ?></div>
+                                            </td>
+                                            <td class="text-center"><?= !empty($model->area_name) ? Html::encode($model->area_name) : '未設定' ?></td>
+                                            <td class="text-center"><?= MemberModel::$statusLabel[$model->status] ?></td>
+                                            <td class="text-center"><?= isset(MemberModel::$validateLabel[$model->validate]) ? MemberModel::$validateLabel[$model->validate] : '未知' ?></td>
+                                            <td class="text-center"><?= $model->login_count ?></td>
+                                            <td class="text-center"><?= $model->last_login_time ?: '無' ?></td>
+                                            <td class="text-center">
+                                                <a class="btn btn-general btn-block"
+                                                    href="/<?= Yii::$app->controller->id ?>/update<?= HttpUtil::buildQuery($_GET, [], ['id' => $model->id]) ?>">編輯</a>
+                                                <a class="btn btn-outline-danger btn-block"
+                                                    onclick="return confirm('確認刪除?')"
+                                                    href="/<?= Yii::$app->controller->id ?>/delete<?= HttpUtil::buildQuery($_GET, [], ['id' => $model->id]) ?>">刪除</a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>

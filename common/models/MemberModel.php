@@ -16,6 +16,7 @@ class MemberModel extends Member implements IdentityInterface
     const SCENARIO_UPDATE = 'update';
     const SCENARIO_SIGNUP = 'signup';
     const SCENARIO_PASSWORD_RESET = 'password_reset';
+    const SCENARIO_IMPORT = 'import';
 
     const STATUS_OFFLINE = 0;
     const STATUS_ONLINE = 1;
@@ -53,13 +54,15 @@ class MemberModel extends Member implements IdentityInterface
         $rules = parent::rules();
         array_push(
             $rules,
-            [['username', 'password_hash', 'email', 'mobile', 'city', 'district', 'mobile', 'zip', 'name'], 'required', 'on' => self::SCENARIO_CREATE],
+            [['password_hash', 'email', 'mobile', 'city', 'district', 'zip', 'name'], 'required', 'on' => self::SCENARIO_CREATE],
             [['password'], 'safe', 'on' => static::SCENARIO_CREATE],
             [['password_hash', 'email', 'mobile', 'city', 'district', 'mobile', 'zip', 'name'], 'required', 'on' => self::SCENARIO_UPDATE],
             [['password', 'password2'], 'safe', 'on' => static::SCENARIO_UPDATE],
             [['username', 'name', 'area_id'], 'required', 'on' => self::SCENARIO_SIGNUP],
             [['password', 'area_id'], 'safe', 'on' => static::SCENARIO_SIGNUP],
-            [['password'], 'required', 'on' => self::SCENARIO_PASSWORD_RESET]
+            [['password'], 'required', 'on' => self::SCENARIO_PASSWORD_RESET],
+            [['email', 'name'], 'required', 'on' => self::SCENARIO_IMPORT],
+            [['password', 'mobile', 'city', 'district', 'zip', 'birthday', 'address', 'other_city', 'period_start', 'period_end', 'area_id', 'member_code'], 'safe', 'on' => self::SCENARIO_IMPORT]
         );
         return $rules;
     }
@@ -68,8 +71,13 @@ class MemberModel extends Member implements IdentityInterface
     {
         if (parent::beforeValidate()) {
             if ($this->scenario == self::SCENARIO_CREATE || $this->scenario == self::SCENARIO_SIGNUP) {
+                // 自動使用 email 作為 username
+                if (!empty($this->email)) {
+                    $this->username = $this->email;
+                }
                 $this->generatePasswordResetToken();
                 $this->generateRegisterToken(); // 產生註冊驗證 token
+                $this->generateMemberCode(); // 產生會員編號
                 $this->country = '台灣';
                 $this->status = self::STATUS_ONLINE;
                 $this->validate = self::VALIDATE_NO;
@@ -78,6 +86,24 @@ class MemberModel extends Member implements IdentityInterface
                     $this->area_id = null; // 讓驗證規則處理必填錯誤
                 }
                 $this->create_time = new Expression('now()');
+            } else if ($this->scenario == self::SCENARIO_IMPORT) {
+                // 匯入場景：自動使用 email 作為 username
+                if (!empty($this->email)) {
+                    $this->username = $this->email;
+                }
+                // 如果是新會員（沒有 ID），才設定預設值
+                if ($this->isNewRecord) {
+                    if (empty($this->member_code)) {
+                        $this->generateMemberCode(); // 產生會員編號（如果 Excel 沒提供）
+                    }
+                    $this->generatePasswordResetToken();
+                    $this->country = '台灣';
+                    $this->status = self::STATUS_ONLINE;
+                    $this->validate = self::VALIDATE_YES; // 匯入的會員直接設為已認證
+                    $this->create_time = new Expression('now()');
+                } else {
+                    $this->update_time = new Expression('now()');
+                }
             } else if ($this->scenario == self::SCENARIO_UPDATE) {
                 // 如果密碼有輸入，且長度 >= 8 且兩次輸入一致，則更新密碼
                 // 如果密碼為空，則不更新密碼
@@ -423,6 +449,49 @@ class MemberModel extends Member implements IdentityInterface
     public function removeRegisterToken()
     {
         $this->register_token = null;
+    }
+
+    /**
+     * 產生會員編號（5位數字：00001~99999）
+     */
+    public function generateMemberCode()
+    {
+        // 如果已經有會員編號，就不再產生
+        if (!empty($this->member_code)) {
+            return;
+        }
+
+        try {
+            // 找出目前最大的會員編號
+            $maxCode = self::getDb()->createCommand(
+                "SELECT MAX(CAST(member_code AS UNSIGNED)) as max_code FROM member WHERE member_code REGEXP '^[0-9]+$'"
+            )->queryScalar();
+
+            // 如果沒有任何會員編號，從 1 開始
+            $nextNumber = empty($maxCode) ? 1 : intval($maxCode) + 1;
+
+            // 如果超過 99999，從 1 重新開始（循環使用）
+            if ($nextNumber > 99999) {
+                $nextNumber = 1;
+            }
+
+            // 格式化為 5 位數字（前面補 0）
+            $this->member_code = str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+
+            // 檢查是否重複（雖然機率很低，但還是檢查一下）
+            $attempts = 0;
+            while (self::find()->where(['member_code' => $this->member_code])->exists() && $attempts < 100) {
+                $nextNumber++;
+                if ($nextNumber > 99999) {
+                    $nextNumber = 1;
+                }
+                $this->member_code = str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+                $attempts++;
+            }
+        } catch (\Exception $e) {
+            // 如果發生錯誤，使用時間戳作為備用方案
+            $this->member_code = str_pad(substr(time(), -5), 5, '0', STR_PAD_LEFT);
+        }
     }
 
     public function logout()
