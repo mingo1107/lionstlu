@@ -157,6 +157,8 @@ class CheckoutController extends FrontendController
                     HtmlHelper::setError('沒有選擇任何商品');
                     return $this->redirect(["index?sid=$standardId"]);
                 }
+                // 在 login() 之前先生成 AuthKey
+                $member->generateAuthKey();
                 Yii::$app->user->login($member);
                 return $this->redirect(["finish?oid=$order->id"]);
 

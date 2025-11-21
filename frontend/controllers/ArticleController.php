@@ -47,9 +47,10 @@ class ArticleController extends FrontendController
         // 檢查文章所屬分類是否需要登入
         $category = ArticleCategoryModel::findOne(['id' => $article->category_id]);
         if (!empty($category) && !empty($category->is_login) && $category->is_login == 1) {
-            if (Yii::$app->user->isGuest) {
-                // 未登入，導向首頁
-                return $this->redirect(['/site/index']);
+            // 檢查會員權限（登入 + 開通 + 期限內）
+            $accessResult = $this->checkMemberAccess();
+            if ($accessResult !== true) {
+                return $accessResult; // 返回重定向或錯誤頁面
             }
         }
         
@@ -135,9 +136,10 @@ class ArticleController extends FrontendController
         
         // 檢查是否需要登入
         if (!empty($category->is_login) && $category->is_login == 1) {
-            if (Yii::$app->user->isGuest) {
-                // 未登入，導向首頁
-                return $this->redirect(['/site/index']);
+            // 檢查會員權限（登入 + 開通 + 期限內）
+            $accessResult = $this->checkMemberAccess();
+            if ($accessResult !== true) {
+                return $accessResult; // 返回重定向或錯誤頁面
             }
         }
         

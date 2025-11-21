@@ -143,6 +143,60 @@ TwCityAsset::register($this);
                         <div class="hr-line-dashed"></div>
 
                         <div class="form-group">
+                            <label class="col-sm-2 control-label">驗證狀態</label>
+                            <div class="col-sm-10">
+                                <?= Html::activeDropDownList(
+                                    $model,
+                                    'validate',
+                                    ArrayHelper::merge(['' => '請選擇'], MemberModel::$validateLabel),
+                                    ['class' => 'form-control']
+                                ) ?>
+                                <span class="help-block m-b-none">
+                                    「已認證」的會員才能訪問需要權限的內容
+                                </span>
+                            </div>
+                        </div>
+                        <div class="hr-line-dashed"></div>
+
+                        <div class="form-group">
+                            <label for="<?= Html::getInputId($model, 'period_start') ?>"
+                                class="col-sm-2 control-label">會員期限開始</label>
+                            <div class="input-group date col-sm-10">
+                                <?= Html::activeTextInput(
+                                    $model,
+                                    'period_start',
+                                    ['class' => 'form-control datepicker-start', 'placeholder' => 'YYYY-MM-DD']
+                                ) ?>
+                                <span class="input-group-addon">
+                                    <i class="glyphicon glyphicon-calendar"></i>
+                                </span>
+                            </div>
+                            <!-- <div class="col-sm-offset-2 col-sm-10">
+                                <span class="help-block m-b-none">留空表示立即生效</span>
+                            </div> -->
+                        </div>
+                        <div class="hr-line-dashed"></div>
+
+                        <div class="form-group">
+                            <label for="<?= Html::getInputId($model, 'period_end') ?>"
+                                class="col-sm-2 control-label">會員期限結束</label>
+                            <div class="input-group date col-sm-10">
+                                <?= Html::activeTextInput(
+                                    $model,
+                                    'period_end',
+                                    ['class' => 'form-control datepicker-end', 'placeholder' => 'YYYY-MM-DD']
+                                ) ?>
+                                <span class="input-group-addon">
+                                    <i class="glyphicon glyphicon-calendar"></i>
+                                </span>
+                            </div>
+                            <!-- <div class="col-sm-offset-2 col-sm-10">
+                                <span class="help-block m-b-none">留空表示永久有效</span>
+                            </div> -->
+                        </div>
+                        <div class="hr-line-dashed"></div>
+
+                        <div class="form-group">
                             <label for="<?= Html::getInputId($model, 'email') ?>"
                                 class="col-sm-2 control-label">E-mail</label>
                             <div class="col-sm-10">
@@ -299,6 +353,32 @@ TwCityAsset::register($this);
             districtClassName: "form-control margin-bottom-2",
             districtFieldName: "<?= Html::getInputName($model, 'district') ?>",
             zipcodeFiledName: "<?= Html::getInputName($model, 'zip') ?>",
+        });
+
+        // 會員期限日期選擇器
+        $('.datepicker-start, .datepicker-end').parent('.input-group.date').datetimepicker({
+            format: 'YYYY-MM-DD',
+            locale: 'zh-tw',
+            useCurrent: false,
+            showClear: true,
+            showClose: true,
+            toolbarPlacement: 'top',
+            widgetPositioning: {
+                horizontal: 'auto',
+                vertical: 'bottom'
+            }
+        });
+
+        // 設定開始日期變更時，更新結束日期的最小值
+        $('.datepicker-start').parent('.input-group.date').on('dp.change', function(e) {
+            var startDate = e.date;
+            $('.datepicker-end').parent('.input-group.date').data('DateTimePicker').minDate(startDate);
+        });
+
+        // 設定結束日期變更時，更新開始日期的最大值
+        $('.datepicker-end').parent('.input-group.date').on('dp.change', function(e) {
+            var endDate = e.date;
+            $('.datepicker-start').parent('.input-group.date').data('DateTimePicker').maxDate(endDate);
         });
     })();
 </script>

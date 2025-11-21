@@ -44,8 +44,8 @@ class SiteController extends BackendController
         $this->layout = 'login';
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            // 登入成功，重定向到首頁（避免刷新時重複提交）
-            return $this->goHome();
+            // 登入成功
+            return $this->redirect(Yii::$app->user->getReturnUrl());
         } else {
             $model->password = '';
             return $this->render('login', [

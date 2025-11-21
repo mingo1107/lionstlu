@@ -100,4 +100,97 @@ class Member extends \yii\db\ActiveRecord
             'last_login_time' => 'Last Login Time',
         ];
     }
+
+    /**
+     * 檢查會員是否已驗證（開通）
+     * @return bool
+     */
+    public function isValidated()
+    {
+        return $this->validate == 1;
+    }
+
+    /**
+     * 檢查會員是否在有效期限內
+     * @return bool
+     */
+    public function isInValidPeriod()
+    {
+        $now = time();
+        
+        // 如果沒有設定期限，視為永久有效
+        if (empty($this->period_start) && empty($this->period_end)) {
+            return true;
+        }
+        
+        // 檢查開始時間
+        if (!empty($this->period_start)) {
+            $startTime = strtotime($this->period_start);
+            if ($now < $startTime) {
+                return false; // 還未到開始時間
+            }
+        }
+        
+        // 檢查結束時間
+        if (!empty($this->period_end)) {
+            $endTime = strtotime($this->period_end . ' 23:59:59'); // 包含結束當天
+            if ($now > $endTime) {
+                return false; // 已過期
+            }
+        }
+        
+        return true;
+    }
+
+    /**
+     * 檢查會員是否有權限訪問受保護內容
+     * 條件：1. 已驗證 2. 在有效期限內
+     * @return bool
+     */
+    public function hasAccessPermission()
+    {
+        return $this->isValidated() && $this->isInValidPeriod();
+    }
+
+    /**
+     * 獲取會員狀態描述
+     * @return string
+     */
+    public function getAccessStatus()
+    {
+        if (!$this->isValidated()) {
+            return '會員尚未開通';
+        }
+        
+        if (!$this->isInValidPeriod()) {
+            if (!empty($this->period_start) && time() < strtotime($this->period_start)) {
+                return '會員尚未生效（開始日期：' . $this->period_start . '）';
+            }
+            if (!empty($this->period_end) && time() > strtotime($this->period_end . ' 23:59:59')) {
+                return '會員已過期（到期日期：' . $this->period_end . '）';
+            }
+        }
+        
+        return '會員有效';
+    }
+
+    /**
+     * 獲取會員剩餘天數
+     * @return int|null 剩餘天數，null 表示無期限或未設定
+     */
+    public function getRemainingDays()
+    {
+        if (empty($this->period_end)) {
+            return null; // 無期限
+        }
+        
+        $endTime = strtotime($this->period_end . ' 23:59:59');
+        $now = time();
+        
+        if ($now > $endTime) {
+            return 0; // 已過期
+        }
+        
+        return ceil(($endTime - $now) / 86400); // 轉換為天數
+    }
 }

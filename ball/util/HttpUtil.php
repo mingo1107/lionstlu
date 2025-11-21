@@ -235,11 +235,19 @@ class HttpUtil
         return "<a href=\"/" . $controller . "/" . $action . HttpUtil::buildQuery($_GET, [], ["orderby" => $field, "order" => $order]) . "\">" . $caption . "</a>";
     }
 
-    public static function setCookie(string $key, string $value, int $expire = null, bool $httpOnly = true, string $path = "/", string $domain = null, bool $secure = false)
+    public static function setCookie(string $key, string $value, int $expire = null, bool $httpOnly = true, string $path = "/", string $domain = null, bool $secure = null)
     {
         if (!isset(Yii::$app->request->cookieValidationKey)) {
             return;
         }
+        
+        // 自動偵測 HTTPS 環境
+        if ($secure === null) {
+            $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') 
+                      || (!empty($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)
+                      || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+        }
+        
         $key = Security::encrypt($key);
         $value = Security::encrypt($value);
         if ($domain == null) {

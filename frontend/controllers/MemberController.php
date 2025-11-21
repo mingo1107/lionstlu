@@ -63,7 +63,12 @@ class MemberController extends FrontendController
 
         if (Yii::$app->request->post('action') === 'signup' && $signupModel->load(Yii::$app->request->post())) {
             $signupModel->username = trim($signupModel->username);
-            if (!MemberModel::exists($signupModel->username)) {
+
+            // 檢查 Email 是否已存在
+            $existingMember = MemberModel::findOne(['username' => $signupModel->username]);
+
+            if ($existingMember === null) {
+                // Email 不存在，建立新會員
                 $signupModel->email = $signupModel->username;
                 $signupModel->setPassword($signupModel->password);
                 if ($signupModel->save()) {
@@ -83,8 +88,27 @@ class MemberController extends FrontendController
                     HtmlHelper::setError(Html::errorSummary($signupModel));
                     $showSignup = true; // 註冊失敗，顯示註冊表單
                 }
+            } elseif ($existingMember->validate == MemberModel::VALIDATE_NO) {
+                // Email 已存在但尚未驗證，重新發送驗證信
+                // 更新密碼（如果用戶重新註冊，使用新密碼）
+                $existingMember->setPassword($signupModel->password);
+                $existingMember->update_time = new Expression('now()');
+                $existingMember->save(false); // 不驗證，直接更新
+
+                // 重新發送驗證信
+                try {
+                    if ($existingMember->sendRegisterVerificationEmail()) {
+                        HtmlHelper::setMessage('您的帳號尚未完成驗證，我們已重新發送驗證信至您的 Email。請收取驗證信後點擊連結完成驗證，即可登入。');
+                    } else {
+                        HtmlHelper::setMessage('帳號已存在但尚未驗證，驗證信重新發送失敗，請聯繫客服協助處理。');
+                    }
+                } catch (\Exception $e) {
+                    HtmlHelper::setMessage('帳號已存在但尚未驗證，驗證信重新發送失敗：' . $e->getMessage());
+                }
+                return $this->redirect(['/member/login']);
             } else {
-                HtmlHelper::setError("很抱歉，'{$signupModel->username}'已經被人使用，請選擇其他E-Mail");
+                // Email 已存在且已驗證，顯示錯誤
+                HtmlHelper::setError("很抱歉，'{$signupModel->username}' 已經被註冊使用。如果這是您的帳號，請直接登入；如果忘記密碼，請使用「忘記密碼」功能。");
                 $showSignup = true; // 帳號已存在，顯示註冊表單
             }
             $signupModel->password = '';
@@ -94,8 +118,8 @@ class MemberController extends FrontendController
         $model = new LoginForm();
         if (Yii::$app->request->post('action') !== 'signup' && $model->load(Yii::$app->request->post())) {
             if ($model->login()) {
-                // 登入成功，重定向到首頁（避免刷新時重複提交）
-                return $this->goHome();
+                // 登入成功，直接重定向
+                return $this->redirect(Yii::$app->user->getReturnUrl());
             } else {
                 // 登入失敗，清除密碼並顯示錯誤
                 $model->password = '';
@@ -104,7 +128,7 @@ class MemberController extends FrontendController
 
         // 取得區域列表供註冊表單使用
         $areaList = AreaModel::findAllForSelect();
-        
+
         return $this->render('login', [
             'model' => $model,
             'signupModel' => $signupModel,
@@ -169,6 +193,8 @@ class MemberController extends FrontendController
                     return $this->asJson(["code" => "000", "message" => "success"]);
                 }
             }
+            // Facebook 登入 - 在 login() 之前先生成 AuthKey
+            $member->generateAuthKey();
             Yii::$app->user->login($member);
             return $this->asJson(["code" => "000", "message" => "success"]);
         } else {
@@ -457,6 +483,8 @@ class MemberController extends FrontendController
                     return $this->redirect(Url::to("/member/login"));
                 }
             }
+            // 在 login() 之前先生成 AuthKey
+            $user->generateAuthKey();
             Yii::$app->user->login($user);
             return $this->redirect(Url::to($ref));
         } else {

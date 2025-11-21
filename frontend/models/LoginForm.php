@@ -60,7 +60,11 @@ class LoginForm extends Model
             $user->last_login_ip = HttpUtil::ip();
             $user->login_count += 1;
             $user->update();
-            return Yii::$app->user->login($this->getMember(), $this->rememberMe ? 3600 * 24 * 30 : 0);
+            
+            // 在 login() 之前先生成 AuthKey，確保 getAuthKey() 能返回正確的值
+            $user->generateAuthKey();
+            
+            return Yii::$app->user->login($user, $this->rememberMe ? 3600 * 24 * 30 : 0);
         }
         HtmlHelper::setError('帳號或密碼不正確');
         return false;

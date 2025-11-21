@@ -27,6 +27,11 @@ class UserModel extends User implements IdentityInterface
 
     public $password;
     public $password2;
+    
+    /**
+     * @var string 臨時儲存的 AuthKey（用於登入時）
+     */
+    private $_tempAuthKey;
 
     public static $statusLabel = [
         self::STATUS_ONLINE => '上線',
@@ -224,6 +229,10 @@ class UserModel extends User implements IdentityInterface
      */
     public function getAuthKey()
     {
+        // 優先返回臨時 AuthKey（用於登入時，因為 Cookie 在同一請求中不會立即更新）
+        if ($this->_tempAuthKey !== null) {
+            return $this->_tempAuthKey;
+        }
         return HttpUtil::getCookie(self::LOGIN_KEY_SECRET);
     }
 
@@ -232,37 +241,18 @@ class UserModel extends User implements IdentityInterface
      */
     public function validateAuthKey($authKey)
     {
-        // 先嘗試使用 | 分隔符（新格式）
+        // 使用 | 分隔符，避免 User Agent 中的下劃線干擾（如 Mac OS X 10_15_7）
         $keyArray = explode("|", $authKey);
-        // 如果失敗，嘗試使用 _ 分隔符（舊格式，向後兼容）
-        if (count($keyArray) != 4) {
-            // 舊格式：只分割前 3 個下劃線，剩下的作為 User Agent
-            $parts = [];
-            $remaining = $authKey;
-            for ($i = 0; $i < 3; $i++) {
-                $pos = strpos($remaining, '_');
-                if ($pos === false) {
-                    return false;
-                }
-                $parts[] = substr($remaining, 0, $pos);
-                $remaining = substr($remaining, $pos + 1);
-            }
-            $parts[] = $remaining; // 剩下的部分作為 User Agent
-            $keyArray = $parts;
-        }
-
         if (count($keyArray) != 4) {
             return false;
         }
 
-        if (
-            is_numeric($keyArray[0])
+        if (is_numeric($keyArray[0])
             && intval($keyArray[0]) > 0
             && intval($keyArray[0]) <= time()
             && $keyArray[1] == $this->getId()
-            && $keyArray[3] == $_SERVER['HTTP_USER_AGENT']
-            && $keyArray[2] == HttpUtil::ip()
-        ) {
+            && $keyArray[3] == $_SERVER['HTTP_USER_AGENT']) {
+            // 移除 IP 驗證，因為可能因為 Proxy/Load Balancer 導致 IP 不一致
             return true;
         } else {
             return false;
@@ -320,9 +310,14 @@ class UserModel extends User implements IdentityInterface
 
     public function generateAuthKey()
     {
-        // 使用 | 作為分隔符，避免 User Agent 中的下劃線導致分割錯誤
+        // 使用 | 作為分隔符，因為 User Agent 可能包含下劃線（如 Mac OS X 10_15_7）
         $authKey = sprintf("%s|%s|%s|%s", time(), $this->getId(), HttpUtil::ip(), $_SERVER['HTTP_USER_AGENT']);
+        
+        // 設置 Cookie（瀏覽器在下一個請求才會帶上）
         HttpUtil::setCookie(self::LOGIN_KEY_SECRET, $authKey, time() + self::LOGIN_DURATION);
+        
+        // 同時儲存到臨時屬性（供同一請求中的 getAuthKey() 使用）
+        $this->_tempAuthKey = $authKey;
     }
 
     /**

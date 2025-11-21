@@ -83,23 +83,45 @@ use yii\helpers\Html;
                             <table class="table table-striped table-bordered table-hover dataTables-example">
                                 <thead>
                                     <tr>
-                                        <th class="text-center" width="5%">
+                                        <th class="text-center" width="4%">
                                             <input type="checkbox" id="_select-all" name="_select-all" value="1" />
                                         </th>
-                                        <th class="text-center" width="8%">會員編號</th>
-                                        <th class="text-center" width="16%">帳號/姓名</th>
-                                        <th class="text-center" width="10%">區域</th>
-                                        <th class="text-center" width="8%">狀態</th>
-                                        <th class="text-center" width="8%">驗證狀態</th>
-                                        <th class="text-center" width="8%">登入次數</th>
-                                        <th class="text-center" width="12%">最後登入時間</th>
+                                        <th class="text-center" width="6%">會員編號</th>
+                                        <th class="text-center" width="12%">帳號/姓名</th>
+                                        <th class="text-center" width="8%">區域</th>
+                                        <th class="text-center" width="6%">狀態</th>
+                                        <th class="text-center" width="6%">驗證</th>
+                                        <th class="text-center" width="16%">會員期限</th>
+                                        <th class="text-center" width="6%">登入次數</th>
+                                        <th class="text-center" width="10%">最後登入</th>
                                         <th class="text-center" width="10%">操作</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach ($list as $model): ?>
+                                        <?php
+                                        // 計算會員期限狀態
+                                        $periodText = '未設定';
+                                        $periodClass = 'text-muted';
+                                        
+                                        if (!empty($model->period_start) || !empty($model->period_end)) {
+                                            $start = $model->period_start ?: '不限';
+                                            $end = $model->period_end ?: '不限';
+                                            $periodText = $start . '<br>～<br>' . $end;
+                                            
+                                            // 檢查是否過期或未生效
+                                            $now = time();
+                                            if (!empty($model->period_end) && strtotime($model->period_end . ' 23:59:59') < $now) {
+                                                $periodClass = 'text-danger'; // 已過期
+                                            } elseif (!empty($model->period_start) && strtotime($model->period_start) > $now) {
+                                                $periodClass = 'text-warning'; // 未生效
+                                            } else {
+                                                $periodClass = 'text-success'; // 有效期內
+                                            }
+                                        }
+                                        ?>
                                         <tr>
-                                            <th class="text-center" width="5%">
+                                            <th class="text-center">
                                                 <input type="checkbox" id="_select-<?= $model->id ?>" name="_select[]"
                                                     value="<?= $model->id ?>" />
                                             </th>
@@ -111,8 +133,11 @@ use yii\helpers\Html;
                                             <td class="text-center"><?= !empty($model->area_name) ? Html::encode($model->area_name) : '未設定' ?></td>
                                             <td class="text-center"><?= MemberModel::$statusLabel[$model->status] ?></td>
                                             <td class="text-center"><?= isset(MemberModel::$validateLabel[$model->validate]) ? MemberModel::$validateLabel[$model->validate] : '未知' ?></td>
+                                            <td class="text-center <?= $periodClass ?>" style="font-size: 12px;">
+                                                <?= $periodText ?>
+                                            </td>
                                             <td class="text-center"><?= $model->login_count ?></td>
-                                            <td class="text-center"><?= $model->last_login_time ?: '無' ?></td>
+                                            <td class="text-center" style="font-size: 12px;"><?= $model->last_login_time ?: '無' ?></td>
                                             <td class="text-center">
                                                 <a class="btn btn-general btn-block"
                                                     href="/<?= Yii::$app->controller->id ?>/update<?= HttpUtil::buildQuery($_GET, [], ['id' => $model->id]) ?>">編輯</a>

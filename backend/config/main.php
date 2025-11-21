@@ -20,7 +20,12 @@ return [
             'identityClass' => 'common\models\UserModel',
             'enableAutoLogin' => true,
             'enableSession' => true, // 明確啟用 session（預設為 true，但明確設定更安全）
-            'identityCookie' => ['name' => '_identity-ball-backend', 'httpOnly' => true],
+            'identityCookie' => [
+                'name' => '_identity-ball-backend',
+                'httpOnly' => true,
+                'secure' => !YII_DEBUG, // 正式環境自動啟用 HTTPS secure flag
+                'sameSite' => 'Lax',
+            ],
             'on afterLogin' => function ($event) {
                 /**
                  * @var $identity \common\models\UserModel
@@ -39,6 +44,14 @@ return [
         'session' => [
             // this is the name of the session cookie used for login on the backend
             'name' => 'advanced-backend',
+            'timeout' => 3600 * 24, // Session 過期時間：24 小時
+            'useCookies' => true,
+            'cookieParams' => [
+                'httpOnly' => true,
+                'secure' => !YII_DEBUG, // 正式環境自動啟用 HTTPS secure flag
+                'sameSite' => 'Lax',
+                'lifetime' => 0, // 瀏覽器關閉時過期
+            ],
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
