@@ -115,8 +115,8 @@ class MemberController extends FrontendController
 
     public function actionXhrFbLogin()
     {
-        $token = yii::$app->request->post("token");
-        $id = yii::$app->request->post("id");
+        $token = Yii::$app->request->post("token");
+        $id = Yii::$app->request->post("id");
         if (empty($token) || empty($id)) {
             return $this->asJson(["code" => "500", "message" => "Lacks some params"]);
         }
@@ -169,7 +169,7 @@ class MemberController extends FrontendController
                     return $this->asJson(["code" => "000", "message" => "success"]);
                 }
             }
-            yii::$app->user->login($member);
+            Yii::$app->user->login($member);
             return $this->asJson(["code" => "000", "message" => "success"]);
         } else {
             return $this->asJson(["code" => "500", "message" => Html::errorSummary($member)]);
@@ -307,11 +307,11 @@ class MemberController extends FrontendController
             ['label' => CustomerServiceModel::$categoryLabel[CustomerServiceModel::CATEGORY_ORDER]]
         ];
         $model = new CustomerServiceModel(['scenario' => CustomerServiceModel::SCENARIO_CREATE]);
-        if ($model->load(yii::$app->request->post())) {
+        if ($model->load(Yii::$app->request->post())) {
             $model->category = CustomerServiceModel::CATEGORY_ORDER;
             if ($model->save()) {
                 HtmlHelper::setMessage('您的請求已經成功送出，客服人員稍後會主動與您聯繫，<a href="/">點此回首頁</a>');
-                return $this->redirect(yii::$app->request->referrer);
+                return $this->redirect(Yii::$app->request->referrer);
             } else {
                 HtmlHelper::setError(Html::errorSummary($model));
             }
@@ -327,10 +327,10 @@ class MemberController extends FrontendController
             ['label' => '最新客服回覆']
         ];
         $list = CustomerServiceModel::query([
-            'member_id' => yii::$app->user->getId(),
+            'member_id' => Yii::$app->user->getId(),
             'category' => CustomerServiceModel::CATEGORY_ORDER
         ]);
-        $count = CustomerServiceModel::count(['member_id' => yii::$app->user->getId()]);
+        $count = CustomerServiceModel::count(['member_id' => Yii::$app->user->getId()]);
         $logList = [];
         foreach ($list as $c) {
             $logList[$c->id] = CustomerServiceLogModel::findAll(['customer_service_id' => $c->id]);
@@ -346,12 +346,12 @@ class MemberController extends FrontendController
 
     public function actionFbLogin()
     {
-        yii::$app->session->open();
-        $ref = yii::$app->request->get("ref");
-        yii::$app->session->set("ref", $ref);
+        Yii::$app->session->open();
+        $ref = Yii::$app->request->get("ref");
+        Yii::$app->session->set("ref", $ref);
         $fb = new Facebook([
-            'app_id' => yii::$app->params["fbAppId"], // Replace {app-id} with your app id
-            'app_secret' => yii::$app->params["fbSecret"],
+            'app_id' => Yii::$app->params["fbAppId"], // Replace {app-id} with your app id
+            'app_secret' => Yii::$app->params["fbSecret"],
             'default_graph_version' => 'v4.0',
         ]);
 
@@ -363,10 +363,10 @@ class MemberController extends FrontendController
 
     public function actionFbLoginCallback()
     {
-        yii::$app->session->open();
+        Yii::$app->session->open();
         $fb = new Facebook([
-            'app_id' => yii::$app->params["fbAppId"], // Replace {app-id} with your app id
-            'app_secret' => yii::$app->params["fbSecret"],
+            'app_id' => Yii::$app->params["fbAppId"], // Replace {app-id} with your app id
+            'app_secret' => Yii::$app->params["fbSecret"],
             'default_graph_version' => 'v4.0',
         ]);
 
@@ -423,7 +423,7 @@ class MemberController extends FrontendController
             "fields" => "email,name,id"
 
         ]);
-        $ref = yii::$app->session->get("ref");
+        $ref = Yii::$app->session->get("ref");
         if (empty($ref)) {
             $ref = "/site/index";
         }
@@ -457,7 +457,7 @@ class MemberController extends FrontendController
                     return $this->redirect(Url::to("/member/login"));
                 }
             }
-            yii::$app->user->login($user);
+            Yii::$app->user->login($user);
             return $this->redirect(Url::to($ref));
         } else {
             HtmlHelper::setError(Html::errorSummary($user));

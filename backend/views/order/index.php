@@ -31,12 +31,12 @@ use yii\helpers\Html;
     <div class="row">
         <form class="navbar-form navbar-left" role="search">
             <div class="form-group">
-                <?= Html::dropDownList('status', yii::$app->request->get("status"),
+                <?= Html::dropDownList('status', Yii::$app->request->get("status"),
                     ArrayHelper::merge(["" => "狀態"], OrderStatus::$labels),
                     ['class' => 'form-control']) ?>
             </div>
             <div class="form-group">
-                <?= Html::textInput('keyword', yii::$app->request->get("keyword"),
+                <?= Html::textInput('keyword', Yii::$app->request->get("keyword"),
                     ['class' => 'form-control', 'placeholder' => '搜尋關鍵字']) ?>
             </div>
             <button type="submit" class="btn btn-default">搜尋</button>

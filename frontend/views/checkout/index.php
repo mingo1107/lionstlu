@@ -25,8 +25,8 @@ PayAsset::register($this);
     <div class="row">
         <?= HtmlHelper::displayFlash() ?>
         <form id="main-form" class="form-horizontal" method="post">
-            <input type="hidden" name="<?= yii::$app->request->csrfParam ?>"
-                   value="<?= yii::$app->request->csrfToken ?>"/>
+            <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>"
+                   value="<?= Yii::$app->request->csrfToken ?>"/>
             <!--產品資訊_開始-->
             <div class="col-md-12 pay-col">
                 <div class="panel panel-deepblue">
@@ -85,7 +85,7 @@ PayAsset::register($this);
                     </div>
                     <div class="panel-body">
                         <div class="row">
-                            <?php if (yii::$app->user->isGuest): ?>
+                            <?php if (Yii::$app->user->isGuest): ?>
                                 <div class="col-xs-12 mb15">
                                     <label for="">E-Mail (會員登入帳號，查訂單用)</label>
                                     <?= Html::activeTextInput($form, 'email',
@@ -235,7 +235,7 @@ PayAsset::register($this);
 <?php InlineScript::begin() ?>
 <script>
     (function () {
-        <?php if (yii::$app->user->isGuest): ?>
+        <?php if (Yii::$app->user->isGuest): ?>
         var formParams = {
             '<?= Html::getInputName($form, 'password') ?>': [function () {
                 var password = document.getElementById('<?= Html::getInputId($form, 'password') ?>');

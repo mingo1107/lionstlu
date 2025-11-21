@@ -70,7 +70,7 @@ FrontendAsset::register($this);
                 <form id="search-form-m" name="search-form-m" action="/article/search" method="get">
                     <div class="input-group">
                         <input type="text" id="keyword-m" name="keyword-m" class="form-control"
-                            value="<?= trim(yii::$app->request->get('keyword-m')) ?>" placeholder="請輸入關鍵字搜尋" />
+                            value="<?= trim(Yii::$app->request->get('keyword-m')) ?>" placeholder="請輸入關鍵字搜尋" />
                         <a href="#"><i class="fa fa-times" aria-hidden="true"></i></a>
                         <span class="input-group-btn">
                             <button class="btn btn-success" type="submit"><i class="fa fa-search"></i></button>
@@ -89,7 +89,7 @@ FrontendAsset::register($this);
                         </button>
                         <button type="button" class="navbar-toggle search-btn">
                             <i class="fa fa-search" aria-hidden="true"></i></button>
-                        <?php if (!yii::$app->user->isGuest): ?>
+                        <?php if (!Yii::$app->user->isGuest): ?>
                             <button type="button" class="navbar-toggle">
                                 <i class="fa fa-user" aria-hidden="true"></i>
                             </button>
@@ -103,7 +103,7 @@ FrontendAsset::register($this);
                     <!-- Collect the nav links, forms, and other content for toggling -->
                     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                         <ul class="nav navbar-nav">
-                            <?php if (yii::$app->user->isGuest): ?>
+                            <?php if (Yii::$app->user->isGuest): ?>
                                 <li class="desktop-none">
                                     <!--                                <a class="js-void" data-fancybox data-type="iframe" data-src="/member/login">-->
                                     <a href="/member/login">
@@ -128,7 +128,7 @@ FrontendAsset::register($this);
                                 class="navbar-form navbar-left mb-none" role="search">
                                 <div class="input-group">
                                     <input type="text" id="keyword-d" name="keyword-d" class="form-control"
-                                        value="<?= trim(yii::$app->request->get('keyword-d')) ?>"
+                                        value="<?= trim(Yii::$app->request->get('keyword-d')) ?>"
                                         placeholder="請輸入關鍵字搜尋" />
                                     <span class="input-group-btn">
                                         <button class="btn btn-success" type="submit"><i class="fa fa-search"></i></button>
@@ -136,7 +136,7 @@ FrontendAsset::register($this);
                                 </div>
                             </form>
                         </ul>
-                        <?php if (yii::$app->user->isGuest): ?>
+                        <?php if (Yii::$app->user->isGuest): ?>
                             <!--未登入_開始-->
                             <div class="navbar-btn navbar-right mb-none">
                                 <a href="/member/login" class="btn btn0814 btn-success">登入/註冊FB
@@ -164,7 +164,7 @@ FrontendAsset::register($this);
                                     </a>
                                 </li>
                                 <li class="mb-none">
-                                    <span class="desktop-id"><?= yii::$app->user->getIdentity()->name ?></span>
+                                    <span class="desktop-id"><?= Yii::$app->user->getIdentity()->name ?></span>
                                 </li>
                                 <li class="mb-none"><a href="/member/center">會員中心</a></li>
                                 <li class="mb-none"><a href="/site/logout">登出</a></li>

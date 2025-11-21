@@ -36,8 +36,8 @@ FormValidateAsset::register($this);
                     <div class="ibox-content">
                         <?= HtmlHelper::displayFlash() ?>
                         <form id="main-form" name="main-form" class="form-horizontal" method="post" action="<?= $qs ?>">
-                            <input type="hidden" name="<?= yii::$app->request->csrfParam ?>"
-                                   value="<?= yii::$app->request->csrfToken ?>"/>
+                            <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>"
+                                   value="<?= Yii::$app->request->csrfToken ?>"/>
                             <div class="form-group">
                                 <label for="<?= Html::getInputId($model, 'name') ?>"
                                        class="col-sm-2 control-label">名稱</label>

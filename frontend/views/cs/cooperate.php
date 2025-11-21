@@ -21,8 +21,8 @@ FormValidateAsset::register($this);
         <div class="col-md-12">
             <?= HtmlHelper::displayFlash() ?>
             <form id="cs-form" name="cs-form" method="post">
-                <input type="hidden" name="<?= yii::$app->request->csrfParam ?>"
-                       value="<?= yii::$app->request->csrfToken ?>"/>
+                <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>"
+                       value="<?= Yii::$app->request->csrfToken ?>"/>
                 <div class="form-group border-dashed">
                     <label for="title">提問主旨</label>
                     <?= Html::activeTextInput($model, 'title',

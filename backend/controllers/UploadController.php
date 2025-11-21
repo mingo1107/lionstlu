@@ -51,13 +51,13 @@ class UploadController extends BackendController
 
     public function actionIndex()
     {
-        $auto = empty(yii::$app->request->post('auto')) ? false : true;
-        $field = yii::$app->request->post('param_name');
-        $category = yii::$app->request->post('category');
-        $current = yii::$app->request->post('current');
+        $auto = empty(Yii::$app->request->post('auto')) ? false : true;
+        $field = Yii::$app->request->post('param_name');
+        $category = Yii::$app->request->post('category');
+        $current = Yii::$app->request->post('current');
 
 
-//        $bak = yii::$app->request->post('bak');
+//        $bak = Yii::$app->request->post('bak');
         $uploadDir = yii::getAlias('@rootPath') . '/backend/web/upload' . $category . "/";
 //        $uploadUrl = Url::base(true) . '/upload' . $category . "/";
         $uploadUrl = File::fs($category, '');
@@ -103,9 +103,9 @@ class UploadController extends BackendController
 
     public function actionNormalFiles()
     {
-        $auto = empty(yii::$app->request->post('auto')) ? false : true;
-        $field = yii::$app->request->post('param_name');
-        $category = yii::$app->request->post('category');
+        $auto = empty(Yii::$app->request->post('auto')) ? false : true;
+        $field = Yii::$app->request->post('param_name');
+        $category = Yii::$app->request->post('category');
 
         $uploadDir = yii::getAlias('@rootPath') . '/backend/web/upload' . $category . "/";
         $uploadUrl = File::fs($category, '');
@@ -144,14 +144,14 @@ class UploadController extends BackendController
 
     public function actionBase64()
     {
-        $url = yii::$app->request->get('url');
+        $url = Yii::$app->request->get('url');
         return ['src' => FileUtil::base64image($url, pathinfo($url, PATHINFO_EXTENSION))];
     }
 
     public function actionDelete()
     {
-        $category = yii::$app->request->post('category');
-        $name = yii::$app->request->post('name');
+        $category = Yii::$app->request->post('category');
+        $name = Yii::$app->request->post('name');
         $s3Manager = new S3Manager();
         $path = sprintf("%s/%s", $category, $name);
         if ($s3Manager->delete($path, false)) {

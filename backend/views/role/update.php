@@ -12,9 +12,9 @@ use yii\helpers\Html;
 /* @var $actionLabel string */
 /* @var $model \common\models\AccessRoleModel */
 /* @var $roleList \common\models\AccessRoleModel[] */
-$menuParentList = yii::$app->view->params['menuParentList'];
+$menuParentList = Yii::$app->view->params['menuParentList'];
 /* @var $menuList \common\models\AccessModel[] */
-$menuList = yii::$app->view->params['menuList'];
+$menuList = Yii::$app->view->params['menuList'];
 FormValidateAsset::register($this);
 $accessList = json_decode($model->access_list, true);
 ?>
@@ -37,8 +37,8 @@ $accessList = json_decode($model->access_list, true);
                     <div class="ibox-content">
                         <?= HtmlHelper::displayFlash() ?>
                         <form id="main-form" name="main-form" class="form-horizontal" method="post" action="<?= $qs ?>">
-                            <input type="hidden" name="<?= yii::$app->request->csrfParam ?>"
-                                   value="<?= yii::$app->request->csrfToken ?>"/>
+                            <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>"
+                                   value="<?= Yii::$app->request->csrfToken ?>"/>
                             <div class="form-group">
                                 <?= Html::activeTextInput($model, 'name',
                                     ['class' => 'form-control', 'data-v-rule' => '', 'data-v-msg' => '請填入名稱',

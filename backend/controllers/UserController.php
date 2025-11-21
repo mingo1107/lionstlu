@@ -34,15 +34,15 @@ class UserController extends BackendController
     {
         $model = new UserModel(['scenario' => UserModel::SCENARIO_CREATE]);
         $roleList = AccessRoleModel::find()->all();
-        if ($model->load(yii::$app->request->post())) {
+        if ($model->load(Yii::$app->request->post())) {
             $checkedUser = UserModel::findOne(['username' => $model->username]);
             if (!empty($checkedUser)) {
                 HtmlHelper::setError('已經存在同ID管理員，新增失敗');
                 return $this->redirect(['index']);
             }
 
-            $list = yii::$app->request->post('access');
-            $roleId = yii::$app->request->post('role_id');
+            $list = Yii::$app->request->post('access');
+            $roleId = Yii::$app->request->post('role_id');
             $model->save();
             if (empty($model->errors)) {
                 $availableAccessIdList = AccessModel::findIdListByVisible();
@@ -83,7 +83,7 @@ class UserController extends BackendController
     public function actionUpdate()
     {
 
-        $id = intval(yii::$app->request->get('id'));
+        $id = intval(Yii::$app->request->get('id'));
         $model = UserModel::findOne(['id' => $id]);
         if (empty($model)) {
             return $this->redirect(['index']);
@@ -91,15 +91,15 @@ class UserController extends BackendController
         $model->scenario = UserModel::SCENARIO_UPDATE;
         $accessUser = AccessUserModel::findOne(['user_id' => $model->id]);
         $roleList = AccessRoleModel::find()->all();
-        if ($model->load(yii::$app->request->post())) {
-            $list = yii::$app->request->post('access');
+        if ($model->load(Yii::$app->request->post())) {
+            $list = Yii::$app->request->post('access');
             if (!empty($model->password)) {
                 $model->setPassword($model->password);
             }
             $model->save();
             if (empty($model->errors)) {
                 $availableAccessIdList = AccessModel::findIdListByVisible();
-                $accessUser->load(yii::$app->request->post());
+                $accessUser->load(Yii::$app->request->post());
                 if (!empty($list)) {
                     $accessList = [];
                     foreach ($list as $accessId) {
@@ -135,7 +135,7 @@ class UserController extends BackendController
 
     public function actionDelete()
     {
-        $id = intval(yii::$app->request->get('id'));
+        $id = intval(Yii::$app->request->get('id'));
         $model = UserModel::findOne(["id" => $id]);
         if(!empty($model)) {
             $model->delete();

@@ -53,8 +53,8 @@ $index = 0;
                         <?= HtmlHelper::displayFlash() ?>
 
                         <form id="main-form" name="main-form" class="form-horizontal" method="post" action="<?= $qs ?>">
-                            <input type="hidden" name="<?= yii::$app->request->csrfParam ?>"
-                                   value="<?= yii::$app->request->csrfToken ?>"/>
+                            <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>"
+                                   value="<?= Yii::$app->request->csrfToken ?>"/>
                             <input type="hidden" name="update" value="1"/>
                             <div id="option-div">
                                 <?php foreach ($list as $option): ?>

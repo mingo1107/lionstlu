@@ -122,7 +122,7 @@ use common\models\VoteModel;
                 return false;
             }
             var params = {
-                '<?=yii::$app->request->csrfParam?>': '<?=yii::$app->request->csrfToken?>',
+                '<?=Yii::$app->request->csrfParam?>': '<?=Yii::$app->request->csrfToken?>',
                 'type': '<?=ArticleModel::AD_VOTE?>',
                 'id': id
             };

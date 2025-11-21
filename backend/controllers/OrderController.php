@@ -44,7 +44,7 @@ class OrderController extends BackendController
 
     public function actionUpdate()
     {
-        $id = intval(yii::$app->request->get('id'));
+        $id = intval(Yii::$app->request->get('id'));
         $model = OrdersModel::findOne(['id' => $id]);
         if (empty($model)) {
             return $this->redirect(['index']);
@@ -64,7 +64,7 @@ class OrderController extends BackendController
 
     public function actionDelete()
     {
-        $ids = yii::$app->request->get('id');
+        $ids = Yii::$app->request->get('id');
         if(empty($ids)) {
             return $this->redirect(Url::to(["index", "id" => null]));
         }

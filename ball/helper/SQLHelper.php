@@ -12,11 +12,11 @@ class SQLHelper
         $search = [];
         if ($method == 'get') {
             foreach ($fields as $f) {
-                $search[$f] = trim(yii::$app->request->get($f));
+                $search[$f] = trim(Yii::$app->request->get($f));
             }
         } else if ($method == 'post') {
             foreach ($fields as $f) {
-                $search[$f] = trim(yii::$app->request->post($f));
+                $search[$f] = trim(Yii::$app->request->post($f));
             }
         }
         return $search;

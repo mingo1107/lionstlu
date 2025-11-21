@@ -20,8 +20,8 @@ FormValidateAsset::register($this);
         <div class="col-md-12 m-2">
             <?= HtmlHelper::displayFlash() ?>
             <form id="cs-form" name="cs-form" method="post">
-                <input type="hidden" name="<?= yii::$app->request->csrfParam ?>"
-                       value="<?= yii::$app->request->csrfToken ?>"/>
+                <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>"
+                       value="<?= Yii::$app->request->csrfToken ?>"/>
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">提問類型</label>
                     <?= Html::activeDropDownList($model, 'category', CustomerServiceModel::$categoryLabel,

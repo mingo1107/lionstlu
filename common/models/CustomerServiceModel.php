@@ -63,10 +63,10 @@ class CustomerServiceModel extends CustomerService
     {
         if (parent::beforeValidate()) {
             if ($this->scenario == self::SCENARIO_CREATE) {
-                if (yii::$app->user->isGuest) {
+                if (Yii::$app->user->isGuest) {
                     $this->member_id = 0;
                 } else {
-                    $this->member_id = yii::$app->user->getId();
+                    $this->member_id = Yii::$app->user->getId();
                 }
                 $this->status = self::STATUS_UNHANDLED;
                 $this->create_time = new Expression('now()');

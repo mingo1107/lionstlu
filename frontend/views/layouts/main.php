@@ -175,7 +175,9 @@ FrontendAsset::register($this);
                             echo "<!-- DEBUG: isGuest=" . ($isGuest ? 'true' : 'false') . ", userId=" . ($userId ?: 'null') . ", identity=" . ($identity ? get_class($identity) : 'null') . " -->";
                         }
                         ?>
-                        <?php if ($isGuest): ?>
+                        <?php
+                        if ($isGuest):
+                        ?>
                             <!--未登入_開始-->
                             <div class="navbar-btn navbar-right mb-none">
                                 <a href="/member/login" class="btn btn0814 btn-success">登入/註冊

@@ -15,10 +15,10 @@ class CsController extends FrontendController
     {
 
         $model = new CustomerServiceModel(['scenario' => CustomerServiceModel::SCENARIO_CREATE]);
-        if ($model->load(yii::$app->request->post())) {
+        if ($model->load(Yii::$app->request->post())) {
             if ($model->save()) {
                 HtmlHelper::setMessage('您的請求已經成功送出，客服人員稍後會主動與您聯繫，<a href="/">點此回首頁</a>');
-                return $this->redirect(yii::$app->request->referrer);
+                return $this->redirect(Yii::$app->request->referrer);
             } else {
                 HtmlHelper::setError(Html::errorSummary($model));
             }
@@ -32,10 +32,10 @@ class CsController extends FrontendController
             ['label' => '合作提案']
         ];
         $model = new CooperateModel(['scenario' => CooperateModel::SCENARIO_CREATE]);
-        if ($model->load(yii::$app->request->post())) {
+        if ($model->load(Yii::$app->request->post())) {
             if ($model->save()) {
                 HtmlHelper::setMessage('您的合作提案已經成功送出，客服人員稍後會主動與您聯繫，<a href="/">點此回首頁</a>');
-                return $this->redirect(yii::$app->request->referrer);
+                return $this->redirect(Yii::$app->request->referrer);
             } else {
                 HtmlHelper::setError(Html::errorSummary($model));
             }

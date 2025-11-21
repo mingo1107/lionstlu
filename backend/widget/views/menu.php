@@ -1,10 +1,10 @@
 <?php
 /* @var $roleList \common\models\AccessRoleModel[] */
-$menuParentList = yii::$app->view->params['menuParentList'];
+$menuParentList = Yii::$app->view->params['menuParentList'];
 /* @var $menuList \common\models\AccessModel[] */
-$menuList = yii::$app->view->params['menuList'];
+$menuList = Yii::$app->view->params['menuList'];
 /* @var $menuList array */
-$accessList = yii::$app->view->params['accessList'];
+$accessList = Yii::$app->view->params['accessList'];
 ?>
 <nav class="navbar-default navbar-static-side" role="navigation">
     <div class="sidebar-collapse">

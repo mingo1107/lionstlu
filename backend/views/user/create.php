@@ -16,9 +16,9 @@ use yii\helpers\Html;
 /* @var $model \common\models\UserModel */
 /* @var $menuParentList \common\models\AccessModel[] */
 /* @var $roleList \common\models\AccessRoleModel[] */
-$menuParentList = yii::$app->view->params['menuParentList'];
+$menuParentList = Yii::$app->view->params['menuParentList'];
 /* @var $menuList \common\models\AccessModel[] */
-$menuList = yii::$app->view->params['menuList'];
+$menuList = Yii::$app->view->params['menuList'];
 FormValidateAsset::register($this);
 TwCityAsset::register($this);
 ?>
@@ -41,8 +41,8 @@ TwCityAsset::register($this);
                         </div>
                         <div class="ibox-content">
                             <?= HtmlHelper::displayFlash() ?>
-                            <input type="hidden" name="<?= yii::$app->request->csrfParam ?>"
-                                   value="<?= yii::$app->request->csrfToken ?>"/>
+                            <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>"
+                                   value="<?= Yii::$app->request->csrfToken ?>"/>
                             <div class="form-group">
                                 <label for="<?= Html::getInputId($model, 'username') ?>"
                                        class="col-sm-2 control-label">ID</label>

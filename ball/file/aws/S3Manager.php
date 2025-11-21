@@ -26,11 +26,11 @@ class S3Manager
     {
         $this->options = [
             'credentials' => [
-                'key' => yii::$app->params['aws']['id'],
-                'secret' => yii::$app->params['aws']['key'],
+                'key' => Yii::$app->params['aws']['id'],
+                'secret' => Yii::$app->params['aws']['key'],
             ],
-            'version' => yii::$app->params['aws']['version'],
-            'region' => yii::$app->params['aws']['region'],
+            'version' => Yii::$app->params['aws']['version'],
+            'region' => Yii::$app->params['aws']['region'],
             'http' => [
                 'verify' => false
             ]
@@ -65,7 +65,7 @@ class S3Manager
         $remote = ltrim($remote, "/");
         $object = new S3();
         $object->Body = file_get_contents($local);
-        $object->Bucket = yii::$app->params['aws']['bucket'];
+        $object->Bucket = Yii::$app->params['aws']['bucket'];
         $object->Key = $remote;
         $ext = pathinfo($local, PATHINFO_EXTENSION);
         if ($ext == 'js') {
@@ -86,7 +86,7 @@ class S3Manager
     {
         $remote = ltrim($remote, '/');
         $object = new S3();
-        $object->Bucket = yii::$app->params['aws']['bucket'];
+        $object->Bucket = Yii::$app->params['aws']['bucket'];
         $object->Key = $remote;
         try {
             $this->client->deleteObject($object->attributes());
@@ -145,7 +145,7 @@ class S3Manager
     public function invalidate(string $remote)
     {
         $validateArray = [
-            'DistributionId' => yii::$app->params['aws']['distributionId'], // REQUIRED
+            'DistributionId' => Yii::$app->params['aws']['distributionId'], // REQUIRED
             'InvalidationBatch' => [
                 'CallerReference' => "/" . $remote . time(), // REQUIRED
                 'Paths' => [ // REQUIRED

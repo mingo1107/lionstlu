@@ -11,11 +11,11 @@ use yii\helpers\Html;
 
 FormValidateAsset::register($this);
 ?>
-<?php if (yii::$app->user->isGuest): ?>
+<?php if (Yii::$app->user->isGuest): ?>
     <!--會員登入-開始-->
     <form id="#reset-password" name="#reset-password" method="post">
-        <input type="hidden" name="<?= yii::$app->request->csrfParam ?>"
-               value="<?= yii::$app->request->csrfToken ?>"/>
+        <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>"
+               value="<?= Yii::$app->request->csrfToken ?>"/>
         <div class="modal-body step step-1 container">
             <div class="signin-row">
                 <h3>密碼重置</h3>

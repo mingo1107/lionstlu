@@ -17,11 +17,11 @@ use yii\helpers\Html;
 
 FormValidateAsset::register($this);
 ?>
-<?php if (yii::$app->user->isGuest): ?>
+<?php if (Yii::$app->user->isGuest): ?>
     <!--會員登入-開始-->
     <form id="login-form" name="login-form" method="post" style="<?= $showSignup ? 'display:none;' : '' ?>">
-        <input type="hidden" name="<?= yii::$app->request->csrfParam ?>"
-            value="<?= yii::$app->request->csrfToken ?>" />
+        <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>"
+            value="<?= Yii::$app->request->csrfToken ?>" />
         <input type="hidden" name="action" value="login" />
         <div class="modal-body step step-1 container" id="login-step">
             <div class="signin-row">
@@ -80,8 +80,8 @@ FormValidateAsset::register($this);
 
     <!--會員註冊-開始-->
     <form id="signup-form" name="signup-form" method="post" style="<?= $showSignup ? '' : 'display:none;' ?>">
-        <input type="hidden" name="<?= yii::$app->request->csrfParam ?>"
-            value="<?= yii::$app->request->csrfToken ?>" />
+        <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>"
+            value="<?= Yii::$app->request->csrfToken ?>" />
         <input type="hidden" name="action" value="signup" />
         <div class="modal-body step step-3 container" id="signup-step">
             <div class="signin-row">
@@ -161,7 +161,7 @@ FormValidateAsset::register($this);
             var postData = {
                 token: token,
                 id: uid,
-                '<?= yii::$app->request->csrfParam ?>': '<?= yii::$app->request->csrfToken ?>'
+                '<?= Yii::$app->request->csrfParam ?>': '<?= Yii::$app->request->csrfToken ?>'
             };
             $.post('<?= Url::to("/member/xhr-fb-login") ?>', postData,
                 function(data) {
@@ -216,7 +216,7 @@ FormValidateAsset::register($this);
         });
 
         $('.js-fb-login').click(function() {
-            common.facebook.login('<?php echo yii::$app->params["fbAppId"] ?>', 'email,public_profile', fbCallback);
+            common.facebook.login('<?php echo Yii::$app->params["fbAppId"] ?>', 'email,public_profile', fbCallback);
         });
     })();
 </script>

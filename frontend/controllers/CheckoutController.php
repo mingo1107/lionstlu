@@ -21,8 +21,8 @@ class CheckoutController extends FrontendController
 
     public function actionIndex()
     {
-        $quantity = intval(yii::$app->request->get('quantity'));
-        $standardId = intval(yii::$app->request->get('sid'));
+        $quantity = intval(Yii::$app->request->get('quantity'));
+        $standardId = intval(Yii::$app->request->get('sid'));
         $standard = StandardModel::findOnline($standardId);
         if (empty($standard)) {
             return $this->redirect(['/site/index']);
@@ -37,11 +37,11 @@ class CheckoutController extends FrontendController
         }
 
         $form = new CheckoutForm();
-        if(!yii::$app->user->isGuest) {
+        if(!Yii::$app->user->isGuest) {
             /**
              * @var $identity MemberModel
              */
-            $identity = yii::$app->user->getIdentity();
+            $identity = Yii::$app->user->getIdentity();
             $form->email = $identity->username;
             $form->name = $identity->name;
             $form->district = $identity->district;
@@ -49,9 +49,9 @@ class CheckoutController extends FrontendController
             $form->mobile = $identity->mobile;
             $form->address = $identity->address;
         }
-        if ($form->load(yii::$app->request->post())) {
+        if ($form->load(Yii::$app->request->post())) {
             if ($form->validate()) {
-                if (yii::$app->user->isGuest) {
+                if (Yii::$app->user->isGuest) {
                     if (!MemberModel::exists($form->email)) {
                         $member = new MemberModel(['scenario' => MemberModel::SCENARIO_CREATE]);
                         $member->email = $form->email;
@@ -79,7 +79,7 @@ class CheckoutController extends FrontendController
                     /**
                      * @var $member MemberModel
                      */
-                    $member = yii::$app->user->getIdentity();
+                    $member = Yii::$app->user->getIdentity();
                 }
                 $order = new OrdersModel(['scenario' => OrdersModel::SCENARIO_CREATE]);
                 $order->no = OrdersModel::generateNo();
@@ -110,7 +110,7 @@ class CheckoutController extends FrontendController
 
                 $s = StandardModel::findOnline($standardId);
                 if (empty($s) || $quantity <= 0) {
-                    if (yii::$app->user->isGuest) {
+                    if (Yii::$app->user->isGuest) {
                         $member->delete();
                     }
                     HtmlHelper::setError('發生錯誤，請稍後再試');
@@ -121,7 +121,7 @@ class CheckoutController extends FrontendController
                     OrdersDetailModel::rollbackStock($order->id);
                     OrdersDetailModel::deleteAllByOrdersId($order->id);
                     $order->delete();
-                    if (yii::$app->user->isGuest) {
+                    if (Yii::$app->user->isGuest) {
                         $member->delete();
                     }
                     HtmlHelper::setError('很抱歉，您選擇的商品規格已售完，請選擇其他規格');
@@ -157,7 +157,7 @@ class CheckoutController extends FrontendController
                     HtmlHelper::setError('沒有選擇任何商品');
                     return $this->redirect(["index?sid=$standardId"]);
                 }
-                yii::$app->user->login($member);
+                Yii::$app->user->login($member);
                 return $this->redirect(["finish?oid=$order->id"]);
 
             } else {
@@ -173,7 +173,7 @@ class CheckoutController extends FrontendController
 
     public function actionFinish()
     {
-        $oid = yii::$app->request->get('oid');
+        $oid = Yii::$app->request->get('oid');
         return $this->render('finish', ['oid' => $oid]);
     }
 }

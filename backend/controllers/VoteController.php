@@ -22,9 +22,9 @@ class VoteController extends BackendController
     {
         $start = Pagination::getOffset();
         $search = SQLHelper::buildSearchQuery(['status', 'keyword']);
-        $accessUser = AccessUserModel::findOne(['user_id' => yii::$app->user->getIdentity()->id]);
+        $accessUser = AccessUserModel::findOne(['user_id' => Yii::$app->user->getIdentity()->id]);
         if($accessUser->role_id==7){
-            $search['user_id'] = yii::$app->user->getIdentity()->id;
+            $search['user_id'] = Yii::$app->user->getIdentity()->id;
         }
         $list = VoteModel::query($search, Pagination::PAGE_SIZE, $start);
         $count = VoteModel::count($search);
@@ -36,7 +36,7 @@ class VoteController extends BackendController
         $model = new VoteModel(['scenario' => VoteModel::SCENARIO_CREATE]);
         $vendorList = UserModel::findAllOnlineVendor();
         if ($model->load(Yii::$app->request->post())) {
-            $model->user_id = yii::$app->user->getIdentity()->id;
+            $model->user_id = Yii::$app->user->getIdentity()->id;
             $model->save();
             if (!empty($model->errors)) {
                 HtmlHelper::setError(Html::errorSummary($model));
@@ -46,7 +46,7 @@ class VoteController extends BackendController
             return $this->redirect(['option?id=' . $model->id]);
         } else {
 
-            $accessUser = AccessUserModel::findOne(['user_id' => yii::$app->user->getIdentity()->id]);
+            $accessUser = AccessUserModel::findOne(['user_id' => Yii::$app->user->getIdentity()->id]);
             $roleAuthority = AccessRoleModel::roleAuthority($accessUser->role_id);
             //$need_verify = ($roleAuthority == 'COLUMNIST') ? 1 : 0;
 
@@ -56,7 +56,7 @@ class VoteController extends BackendController
 
     public function actionUpdate()
     {
-        $id = intval(yii::$app->request->get('id'));
+        $id = intval(Yii::$app->request->get('id'));
         $model = VoteModel::findOne(['id' => $id]);
         if (empty($model)) {
             return $this->redirect(['index']);
@@ -73,7 +73,7 @@ class VoteController extends BackendController
             return $this->redirect(Yii::$app->request->referrer);
         } else {
 
-            $accessUser = AccessUserModel::findOne(['user_id' => yii::$app->user->getIdentity()->id]);
+            $accessUser = AccessUserModel::findOne(['user_id' => Yii::$app->user->getIdentity()->id]);
             $roleAuthority = AccessRoleModel::roleAuthority($accessUser->role_id);
             //$need_verify = ($roleAuthority == 'COLUMNIST') ? 1 : 0;
 
@@ -83,22 +83,22 @@ class VoteController extends BackendController
 
     public function actionOption()
     {
-        $id = intval(yii::$app->request->get('id'));
+        $id = intval(Yii::$app->request->get('id'));
         $model = VoteModel::findOne(['id' => $id]);
         if (empty($model)) {
             return $this->redirect(['index']);
         }
         $list = VoteOptionModel::findAllByVoteId($model->id);
         $this->applyBreadcrumbsAndTitle($this->actionLabel . '選項');
-        $update = yii::$app->request->post('update');
+        $update = Yii::$app->request->post('update');
         if ($update == 1) {
             if (!empty($list)) { // 只能修改不能新增刪除
                 foreach ($list as $option) {
-                    $name = yii::$app->request->post("option-$option->id");
+                    $name = Yii::$app->request->post("option-$option->id");
                     VoteOptionModel::updateNameById($name, $option->id);
                 }
             } else { // 沒資料可以新增刪除
-                $optionList = yii::$app->request->post('option');
+                $optionList = Yii::$app->request->post('option');
                 foreach ($optionList as $option) {
                     $o = new VoteOptionModel();
                     $o->name = $option;
@@ -115,7 +115,7 @@ class VoteController extends BackendController
 
     public function actionRecord()
     {
-        $id = intval(yii::$app->request->get('id'));
+        $id = intval(Yii::$app->request->get('id'));
         $model = VoteModel::findOne(['id' => $id]);
         if (empty($model)) {
             return $this->redirect(['index']);
@@ -131,7 +131,7 @@ class VoteController extends BackendController
 
     public function actionDelete()
     {
-        $id = intval(yii::$app->request->get('id'));
+        $id = intval(Yii::$app->request->get('id'));
         $model = VoteModel::findOne(["id" => $id]);
         if (!empty($model)) {
             $model->delete();

@@ -38,8 +38,8 @@ class OrderController extends FrontendController
         ];
 
         $start = Pagination::getOffset();
-        $list = OrdersModel::search(['member_id' => yii::$app->user->getId()]);
-        $count = OrdersModel::count(['member_id' => yii::$app->user->getId()]);
+        $list = OrdersModel::search(['member_id' => Yii::$app->user->getId()]);
+        $count = OrdersModel::count(['member_id' => Yii::$app->user->getId()]);
         $orderDetailList = [];
         foreach ($list as $o) {
             $orderDetailList[$o->id] = OrdersDetailModel::findAllByOrderId($o->id);
@@ -55,8 +55,8 @@ class OrderController extends FrontendController
             ['label' => '歷史訂單查詢']
         ];
 
-        $oid = yii::$app->request->get('o');
-        $order = OrdersModel::findOne(['no' => $oid, 'member_id' => yii::$app->user->getId()]);
+        $oid = Yii::$app->request->get('o');
+        $order = OrdersModel::findOne(['no' => $oid, 'member_id' => Yii::$app->user->getId()]);
         if (empty($order)) {
             return $this->redirect(['/order/index']);
         }

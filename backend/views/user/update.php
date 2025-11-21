@@ -18,9 +18,9 @@ use yii\helpers\Html;
 /* @var $menuParentList \common\models\AccessModel[] */
 /* @var $accessUser \common\models\AccessUserModel */
 /* @var $roleList \common\models\AccessRoleModel[] */
-$menuParentList = yii::$app->view->params['menuParentList'];
+$menuParentList = Yii::$app->view->params['menuParentList'];
 /* @var $menuList \common\models\AccessModel[] */
-$menuList = yii::$app->view->params['menuList'];
+$menuList = Yii::$app->view->params['menuList'];
 FormValidateAsset::register($this);
 TwCityAsset::register($this);
 $accessList = json_decode($accessUser->access_list, true);
@@ -53,8 +53,8 @@ $accessList = json_decode($accessUser->access_list, true);
                                     ]
                                 ]
                             ]) ?>
-                            <input type="hidden" name="<?= yii::$app->request->csrfParam ?>"
-                                   value="<?= yii::$app->request->csrfToken ?>"/>
+                            <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>"
+                                   value="<?= Yii::$app->request->csrfToken ?>"/>
 
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">ID</label>

@@ -38,7 +38,7 @@ class ArticleController extends FrontendController
 
     public function actionDetail()
     {
-        $id = intval(yii::$app->request->get('id'));
+        $id = intval(Yii::$app->request->get('id'));
         $article = ArticleModel::findOneOnlineById($id);
         if (empty($article)) {
             return $this->redirect(['/site/index']);
@@ -127,7 +127,7 @@ class ArticleController extends FrontendController
     public function actionCategory()
     {
         $start = Pagination::getOffset();
-        $categoryId = intval(yii::$app->request->get('id'));
+        $categoryId = intval(Yii::$app->request->get('id'));
         $category = ArticleCategoryModel::findOne(['status' => ArticleCategoryModel::STATUS_ONLINE, 'id' => $categoryId]);
         if (empty($category)) {
             return $this->redirect(['/site/index']);
@@ -158,13 +158,13 @@ class ArticleController extends FrontendController
     public function actionSearch()
     {
         $start = Pagination::getOffset();
-        $category = yii::$app->request->get('c');
-        $type = yii::$app->request->get('t');
-        $status = yii::$app->request->get('s');
+        $category = Yii::$app->request->get('c');
+        $type = Yii::$app->request->get('t');
+        $status = Yii::$app->request->get('s');
         $randomBannerList = BannerModel::findAllRandomByType(BannerModel::TYPE_BANNER, 1);
         $randomArticleList = ArticleModel::findAllRandomExcludeId(0, 3);
-        $keyword = !empty(yii::$app->request->get('keyword-d')) ?
-            yii::$app->request->get('keyword-d') : yii::$app->request->get('keyword-m');
+        $keyword = !empty(Yii::$app->request->get('keyword-d')) ?
+            Yii::$app->request->get('keyword-d') : Yii::$app->request->get('keyword-m');
 
         $list = ArticleModel::search([
             'category' => $category,
@@ -199,8 +199,8 @@ class ArticleController extends FrontendController
 
     public function actionXhrVote()
     {
-        $voteId = intval(yii::$app->request->post('vote_id'));
-        $optionId = intval(yii::$app->request->post('option'));
+        $voteId = intval(Yii::$app->request->post('vote_id'));
+        $optionId = intval(Yii::$app->request->post('option'));
         if (!VoteModel::isOnline($voteId)) {
             return ResponseCode::errors(ResponseCode::ERROR_FAILED, 'This vote is offline');
         }
@@ -217,7 +217,7 @@ class ArticleController extends FrontendController
             return ResponseCode::errors(ResponseCode::ERROR_FAILED, "Unknown option '$optionId'");
         }
 
-        $memberId = yii::$app->user->isGuest ? 0 : yii::$app->user->getId();
+        $memberId = Yii::$app->user->isGuest ? 0 : Yii::$app->user->getId();
         if($memberId==0){
             return ResponseCode::errors(ResponseCode::ERROR_NEED_LOGIN, "Please Login");
         }
@@ -252,7 +252,7 @@ class ArticleController extends FrontendController
 
     public function actionXhrShare()
     {
-        $id = intval(yii::$app->request->post('id'));
+        $id = intval(Yii::$app->request->post('id'));
         if (!ArticleModel::findOne($id)) {
             return ResponseCode::errors(ResponseCode::ERROR_FAILED, 'This article is not exist');
         }

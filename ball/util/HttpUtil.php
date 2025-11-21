@@ -229,7 +229,7 @@ class HttpUtil
      */
     public static function buildOrderQuery(string $field, string $caption): string
     {
-        $order = yii::$app->request->get("order") == "DESC" ? "ASC" : "DESC";
+        $order = Yii::$app->request->get("order") == "DESC" ? "ASC" : "DESC";
         $action = Yii::$app->controller->action->id;
         $controller = Yii::$app->controller->id;
         return "<a href=\"/" . $controller . "/" . $action . HttpUtil::buildQuery($_GET, [], ["orderby" => $field, "order" => $order]) . "\">" . $caption . "</a>";

@@ -20,8 +20,8 @@ $colorIndex = 0;
                     <h2>投票</h2>
                 </div>
                 <form class="vote-form" id="d-form" name="m-form" method="post">
-                    <input type="hidden" name="<?= yii::$app->request->csrfParam ?>"
-                           value="<?= yii::$app->request->csrfToken ?>"/>
+                    <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>"
+                           value="<?= Yii::$app->request->csrfToken ?>"/>
                     <input type="hidden" name="vote_id" value="<?= $vote->id ?>"/>
                     <div class="p1020">
                         <div class="ddd">
@@ -68,8 +68,8 @@ $colorIndex = 0;
                     <h2>投票</h2>
                 </div>
                 <form class="vote-form" id="m-form" name="m-form" method="post">
-                    <input type="hidden" name="<?= yii::$app->request->csrfParam ?>"
-                           value="<?= yii::$app->request->csrfToken ?>"/>
+                    <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>"
+                           value="<?= Yii::$app->request->csrfToken ?>"/>
                     <input type="hidden" name="vote_id" value="<?= $vote->id ?>"/>
                     <div class="p1020">
                         <div class="ddd">

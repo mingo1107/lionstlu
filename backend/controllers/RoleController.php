@@ -29,7 +29,7 @@ class RoleController extends BackendController
         $model = new AccessRoleModel(['scenario' => AccessRoleModel::SCENARIO_CREATE]);
         $availableAccessIdList = AccessModel::findIdListByVisible();
         if ($model->load(Yii::$app->request->post())) {
-            $list = yii::$app->request->post('access');
+            $list = Yii::$app->request->post('access');
             if (!empty($list)) {
                 $accessList = [];
                 foreach ($list as $accessId) {
@@ -57,7 +57,7 @@ class RoleController extends BackendController
 
     public function actionUpdate()
     {
-        $id = intval(yii::$app->request->get('id'));
+        $id = intval(Yii::$app->request->get('id'));
         $model = AccessRoleModel::findOne(['id' => $id]);
         if (empty($model)) {
             return $this->redirect(['index']);
@@ -65,7 +65,7 @@ class RoleController extends BackendController
         $model->scenario = AccessRoleModel::SCENARIO_UPDATE;
         $availableAccessIdList = AccessModel::findIdListByVisible();
         if ($model->load(Yii::$app->request->post())) {
-            $list = yii::$app->request->post('access');
+            $list = Yii::$app->request->post('access');
             if (!empty($list)) {
                 $accessList = [];
                 foreach ($list as $accessId) {
@@ -93,7 +93,7 @@ class RoleController extends BackendController
 
     public function actionDelete()
     {
-        $id = intval(yii::$app->request->get('id'));
+        $id = intval(Yii::$app->request->get('id'));
         $model = AccessRoleModel::findOne(["id" => $id]);
         if (!empty($model)) {
             $model->delete();

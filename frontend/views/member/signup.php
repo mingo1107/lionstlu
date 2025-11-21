@@ -10,11 +10,11 @@ use yii\helpers\Html;
 
 FormValidateAsset::register($this);
 ?>
-<?php if (yii::$app->user->isGuest): ?>
+<?php if (Yii::$app->user->isGuest): ?>
     <!--加入會員-開始-->
     <form id="main-form" name="main-form" method="post">
-        <input type="hidden" name="<?= yii::$app->request->csrfParam ?>"
-               value="<?= yii::$app->request->csrfToken ?>"/>
+        <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>"
+               value="<?= Yii::$app->request->csrfToken ?>"/>
         <div class="modal-body step step-3 container" data-step="3">
             <div class="signin-row">
                 <a href="/member/login" id="back" class="step step-3" data-step="1"
@@ -58,7 +58,7 @@ FormValidateAsset::register($this);
 <?php endif ?>
 <?php InlineScript::begin() ?>
 <script>
-    <?php if(!yii::$app->user->isGuest):?>
+    <?php if(!Yii::$app->user->isGuest):?>
     alert('會員註冊成功');
     parent.jQuery.fancybox.getInstance().close();
     parent.location.reload();

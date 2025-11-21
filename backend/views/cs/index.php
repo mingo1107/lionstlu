@@ -30,7 +30,7 @@ use yii\helpers\Html;
     <div class="row">
         <form class="navbar-form navbar-left" role="search">
             <div class="form-group">
-                <?= Html::dropDownList('category', yii::$app->request->get("category"),
+                <?= Html::dropDownList('category', Yii::$app->request->get("category"),
                     ArrayHelper::merge(["" => "全部"], CustomerServiceModel::$categoryLabel),
                     ['class' => 'form-control']) ?>
             </div>

@@ -23,9 +23,9 @@ class ProductController extends BackendController
     {
         $start = Pagination::getOffset();
         $search = SQLHelper::buildSearchQuery(['status', 'keyword']);
-        $accessUser = AccessUserModel::findOne(['user_id' => yii::$app->user->getIdentity()->id]);
+        $accessUser = AccessUserModel::findOne(['user_id' => Yii::$app->user->getIdentity()->id]);
         if($accessUser->role_id==7){
-            $search['user_id'] = yii::$app->user->getIdentity()->id;
+            $search['user_id'] = Yii::$app->user->getIdentity()->id;
         }
         $list = ProductModel::query($search, Pagination::PAGE_SIZE, $start);
         $count = ProductModel::count($search);
@@ -38,7 +38,7 @@ class ProductController extends BackendController
         $standard = new StandardModel(['scenario' => StandardModel::SCENARIO_CREATE]);
         $vendorList = UserModel::findAllOnlineVendor();
         if ($model->load(Yii::$app->request->post()) && $standard->load(Yii::$app->request->post())) {
-            $model->user_id = yii::$app->user->getIdentity()->id;
+            $model->user_id = Yii::$app->user->getIdentity()->id;
             if ($model->save()) {
                 $standard->status = StandardModel::STATUS_ONLINE;
                 $standard->sn = $model->sn;
@@ -53,7 +53,7 @@ class ProductController extends BackendController
             return $this->redirect(['update' . $this->queryString]);
         } else {
 
-            $accessUser = AccessUserModel::findOne(['user_id' => yii::$app->user->getIdentity()->id]);
+            $accessUser = AccessUserModel::findOne(['user_id' => Yii::$app->user->getIdentity()->id]);
             $roleAuthority = AccessRoleModel::roleAuthority($accessUser->role_id);
             //$need_verify = ($roleAuthority == 'COLUMNIST') ? 1 : 0;
 
@@ -63,7 +63,7 @@ class ProductController extends BackendController
 
     public function actionUpdate()
     {
-        $id = intval(yii::$app->request->get('id'));
+        $id = intval(Yii::$app->request->get('id'));
         $model = ProductModel::findOne(['id' => $id]);
         if (empty($model)) {
             return $this->redirect(['index']);
@@ -81,7 +81,7 @@ class ProductController extends BackendController
             return $this->redirect(['update' . $this->queryString]);
         } else {
 
-            $accessUser = AccessUserModel::findOne(['user_id' => yii::$app->user->getIdentity()->id]);
+            $accessUser = AccessUserModel::findOne(['user_id' => Yii::$app->user->getIdentity()->id]);
             $roleAuthority = AccessRoleModel::roleAuthority($accessUser->role_id);
             //$need_verify = ($roleAuthority == 'COLUMNIST') ? 1 : 0;
 
@@ -91,7 +91,7 @@ class ProductController extends BackendController
 
     public function actionDelete()
     {
-        $id = intval(yii::$app->request->get('id'));
+        $id = intval(Yii::$app->request->get('id'));
         StandardModel::deleteAll(["product_id" => $id]);
         ProductModel::deleteAll(['id' => $id]);
         HtmlHelper::setMessage('刪除成功');
@@ -103,7 +103,7 @@ class ProductController extends BackendController
     public function actionStandard()
     {
         $this->applyBreadcrumbsAndTitle('規格管理');
-        $id = intval(yii::$app->request->get('id'));
+        $id = intval(Yii::$app->request->get('id'));
         $product = ProductModel::findOne(['id' => $id]);
         if (empty($product)) {
             return $this->redirect(['index']);
@@ -115,7 +115,7 @@ class ProductController extends BackendController
     public function actionStandardCreate()
     {
         $this->applyBreadcrumbsAndTitle('建立規格');
-        $id = intval(yii::$app->request->get('id'));
+        $id = intval(Yii::$app->request->get('id'));
         $product = ProductModel::findOne(['id' => $id]);
         if (empty($product)) {
             return $this->redirect(['index']);
@@ -139,8 +139,8 @@ class ProductController extends BackendController
     public function actionStandardUpdate()
     {
         $this->applyBreadcrumbsAndTitle('編輯規格');
-        $id = intval(yii::$app->request->get('id'));
-        $sid = intval(yii::$app->request->get('sid'));
+        $id = intval(Yii::$app->request->get('id'));
+        $sid = intval(Yii::$app->request->get('sid'));
         $product = ProductModel::findOne(['id' => $id]);
         if (empty($product)) {
             return $this->redirect(['index']);
@@ -162,7 +162,7 @@ class ProductController extends BackendController
 
     public function actionStandardDelete()
     {
-        $id = intval(yii::$app->request->get('id'));
+        $id = intval(Yii::$app->request->get('id'));
         StandardModel::deleteAll(['id' => $id]);
         HtmlHelper::setMessage('刪除成功');
         return $this->redirect(['index' . $this->queryString]);

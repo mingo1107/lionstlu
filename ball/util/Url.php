@@ -38,7 +38,7 @@ class Url extends \yii\helpers\Url
 
     public static function order(string $field)
     {
-        if (yii::$app->request->get("order") != "desc") {
+        if (Yii::$app->request->get("order") != "desc") {
             return static::to(["", "orderby" => $field, "order" => "desc"]);
         } else {
             return static::to(["", "orderby" => $field, "order" => ""]);

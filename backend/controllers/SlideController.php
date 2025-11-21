@@ -44,7 +44,7 @@ class SlideController extends BackendController
 
     public function actionUpdate()
     {
-        $id = intval(yii::$app->request->get('id'));
+        $id = intval(Yii::$app->request->get('id'));
         $model = BannerModel::findOne(['id' => $id]);
         if (empty($model)) {
             return $this->redirect(['index']);
@@ -67,7 +67,7 @@ class SlideController extends BackendController
 
     public function actionDelete()
     {
-        $id = intval(yii::$app->request->get('id'));
+        $id = intval(Yii::$app->request->get('id'));
         BannerModel::deleteAll(['id' => $id]);
         HtmlHelper::setMessage('刪除成功');
         return $this->redirect(['index' . $this->queryString]);

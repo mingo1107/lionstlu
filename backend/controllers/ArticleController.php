@@ -41,9 +41,9 @@ class ArticleController extends BackendController
     {
         $start = Pagination::getOffset();
         $search = SQLHelper::buildSearchQuery(['status', 'keyword', 'ad_type']);
-        $accessUser = AccessUserModel::findOne(['user_id' => yii::$app->user->getIdentity()->id]);
+        $accessUser = AccessUserModel::findOne(['user_id' => Yii::$app->user->getIdentity()->id]);
         if($accessUser->role_id==7){
-            $search['user_id'] = yii::$app->user->getIdentity()->id;
+            $search['user_id'] = Yii::$app->user->getIdentity()->id;
         }
         $list = ArticleModel::query($search, Pagination::PAGE_SIZE, $start);
         $count = ArticleModel::count($search);
@@ -59,7 +59,7 @@ class ArticleController extends BackendController
         if ($model->load(Yii::$app->request->post())) {
             $model->views = (empty($model->views)) ? 500 : $model->views;
             $model->share_count = (empty($model->share_count)) ? 1 : $model->share_count;
-            $model->user_id = yii::$app->user->getIdentity()->id;
+            $model->user_id = Yii::$app->user->getIdentity()->id;
             //views
 
 
@@ -72,7 +72,7 @@ class ArticleController extends BackendController
             return $this->redirect(['index' . $this->queryString]);
         } else {
 
-            $accessUser = AccessUserModel::findOne(['user_id' => yii::$app->user->getIdentity()->id]);
+            $accessUser = AccessUserModel::findOne(['user_id' => Yii::$app->user->getIdentity()->id]);
             $roleAuthority = AccessRoleModel::roleAuthority($accessUser->role_id);
             //$need_verify = ($roleAuthority == 'COLUMNIST') ? 1 : 0;
 
@@ -82,7 +82,7 @@ class ArticleController extends BackendController
 
     public function actionUpdate()
     {
-        $id = intval(yii::$app->request->get('id'));
+        $id = intval(Yii::$app->request->get('id'));
         $model = ArticleModel::findOne(['id' => $id]);
         if (empty($model)) {
             return $this->redirect(['index']);
@@ -109,7 +109,7 @@ class ArticleController extends BackendController
             return $this->redirect(Yii::$app->request->referrer);
         } else {
 
-            $accessUser = AccessUserModel::findOne(['user_id' => yii::$app->user->getIdentity()->id]);
+            $accessUser = AccessUserModel::findOne(['user_id' => Yii::$app->user->getIdentity()->id]);
             $roleAuthority = AccessRoleModel::roleAuthority($accessUser->role_id);
             //$need_verify = ($roleAuthority == 'COLUMNIST') ? 1 : 0;
 
@@ -120,7 +120,7 @@ class ArticleController extends BackendController
 
     public function actionDelete()
     {
-        $id = intval(yii::$app->request->get('id'));
+        $id = intval(Yii::$app->request->get('id'));
         ArticleModel::deleteAll(['id' => $id]);
         HtmlHelper::setMessage('刪除成功');
         return $this->redirect(['index' . $this->queryString]);
@@ -130,8 +130,8 @@ class ArticleController extends BackendController
     public function actionSelect()
     {
         $this->layout = 'iframe';
-        $type = intval(yii::$app->request->get('type'));
-        $articleId = intval(yii::$app->request->get('articleId', 0));
+        $type = intval(Yii::$app->request->get('type'));
+        $articleId = intval(Yii::$app->request->get('articleId', 0));
         $product = null;
         if (!empty($articleId)) {
             $article = ArticleModel::findOne(['id' => $articleId]);
@@ -164,8 +164,8 @@ class ArticleController extends BackendController
 
     public function actionXhrSelect()
     {
-        $type = intval(yii::$app->request->post('type'));
-        $id = intval(yii::$app->request->post('id'));
+        $type = intval(Yii::$app->request->post('type'));
+        $id = intval(Yii::$app->request->post('id'));
         if ($type == ArticleModel::AD_VOTE) {
             $vote = VoteModel::findOne(['id' => $id]);
             if (!empty($vote)) {
@@ -187,7 +187,7 @@ class ArticleController extends BackendController
 
     public function actionGenpicsee()
     {
-        $id = intval(yii::$app->request->get('id'));
+        $id = intval(Yii::$app->request->get('id'));
         $model = ArticleModel::findOne(['id' => $id]);
         if (empty($model)) {
             return $this->redirect(['index']);
