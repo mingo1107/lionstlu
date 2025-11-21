@@ -69,7 +69,7 @@ class MemberController extends BackendController
     }
 
     /**
-     * 下載匯入範例檔案
+     * 匯出會員資料
      */
     public function actionDownloadTemplate()
     {
@@ -110,20 +110,49 @@ class MemberController extends BackendController
         }
         $sheet->getStyle('A1:M1')->applyFromArray($headerStyle);
 
-        // 添加範例資料
-        $exampleData = [
-            ['00001', 'A區', 'test1@example.com', '123456', 'user1', '0912345678', '1981/11/7', '台北市', '信義區', 'AA路', '新竹', '2025/7/1', '2026/6/30'],
-            ['00002', 'B區', 'test2@example.com', '123456', 'user2', '0912345679', '1988/11/1', '新北市', '板橋區', 'BB路', '', '2025/9/1', '2026/8/30']
-        ];
+        // 查詢所有會員資料（包含區域名稱）
+        $sql = "SELECT m.*, a.area_name FROM member m LEFT JOIN area a ON m.area_id = a.id ORDER BY m.id DESC";
+        $members = MemberModel::getDb()->createCommand($sql)->queryAll(\PDO::FETCH_OBJ);
 
-        foreach ($exampleData as $rowIndex => $rowData) {
+        // 填入會員資料
+        $rowIndex = 2; // 從第2行開始（第1行是標題）
+        foreach ($members as $member) {
+            // 格式化日期：將 YYYY-MM-DD 轉換為 YYYY/MM/DD
+            $formatDate = function ($date) {
+                if (empty($date) || $date === '0000-00-00' || $date === '0000-00-00 00:00:00') {
+                    return '';
+                }
+                // 如果是日期時間格式，只取日期部分
+                if (strpos($date, ' ') !== false) {
+                    $date = substr($date, 0, 10);
+                }
+                return str_replace('-', '/', $date);
+            };
+
+            $rowData = [
+                $member->member_code ?? '',                    // ID(四位數0001)
+                $member->area_name ?? '',                       // 區
+                $member->email ?? '',                           // 帳號(Email)
+                '',                                             // 密碼（留空，因為是加密的）
+                $member->name ?? '',                            // 名稱(姓名)
+                $member->mobile ?? '',                          // 手機
+                $formatDate($member->birthday),                 // 生日
+                $member->city ?? '',                            // 所在城市
+                $member->district ?? '',                        // 所在區域
+                $member->address ?? '',                         // 所在地址
+                $member->other_city ?? '',                      // 其他城市
+                $formatDate($member->period_start),             // 會員期限起
+                $formatDate($member->period_end)                // 會員期限訖
+            ];
+
             foreach ($rowData as $col => $value) {
-                $sheet->getCellByColumnAndRow($col + 1, $rowIndex + 2)->setValue($value);
+                $sheet->getCellByColumnAndRow($col + 1, $rowIndex)->setValue($value);
             }
+            $rowIndex++;
         }
 
         // 輸出檔案
-        $filename = '會員匯入範例_' . date('YmdHis') . '.xlsx';
+        $filename = '會員資料匯出_' . date('YmdHis') . '.xlsx';
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
@@ -229,6 +258,11 @@ class MemberController extends BackendController
         try {
             // 解析欄位 (索引從 0 開始)
             $memberCode = isset($row[0]) && trim($row[0]) !== '' ? trim($row[0]) : '';
+            // 如果 member_code 是純數字，自動補零到四位數（Excel 可能會過濾掉前面的 0）
+            if (!empty($memberCode) && is_numeric($memberCode)) {
+                $code = intval($memberCode);
+                $memberCode = str_pad($code, 4, '0', STR_PAD_LEFT);
+            }
             $areaName = isset($row[1]) && trim($row[1]) !== '' ? trim($row[1]) : '';
             $email = isset($row[2]) && trim($row[2]) !== '' ? trim($row[2]) : '';
             $password = isset($row[3]) && trim($row[3]) !== '' ? trim($row[3]) : '';
@@ -265,36 +299,49 @@ class MemberController extends BackendController
             // 檢查 Email 是否已存在
             $member = MemberModel::findOne(['username' => $email]);
             $isNewRecord = empty($member);
+            
+            // 檢查 member_code 是否已存在（如果提供了 member_code）
+            if (!empty($memberCode)) {
+                $existingMemberByCode = MemberModel::findOne(['member_code' => $memberCode]);
+                // 如果 member_code 已存在，且不是同一個會員，則報錯
+                if ($existingMemberByCode && ($isNewRecord || $existingMemberByCode->id != $member->id)) {
+                    return ['success' => false, 'action' => '', 'error' => "會員編號「{$memberCode}」已存在，請使用其他編號"];
+                }
+            }
 
             if ($member) {
                 // 更新現有會員
                 $member->scenario = MemberModel::SCENARIO_IMPORT;
 
-                // 如果 Excel 有提供 member_code，則更新
+                // 設定會員編號：直接使用 Excel 檔案內容（不自動產生）
                 if (!empty($memberCode)) {
                     $member->member_code = $memberCode;
                 }
-                // 如果現有會員沒有 member_code，自動生成一個
-                elseif (empty($member->member_code)) {
-                    $member->generateMemberCode();
+
+                // 密碼處理：更新會員時，只有當 Excel 中有提供密碼時才更新
+                // 如果密碼為空則不更新，避免覆蓋原本的密碼
+                if (!empty($password) && trim($password) !== '') {
+                    $member->setPassword($password);
                 }
+                // 如果密碼為空，不執行任何操作，保留原本的密碼
             } else {
                 // 新增會員
                 $member = new MemberModel(['scenario' => MemberModel::SCENARIO_IMPORT]);
                 $member->email = $email;
 
-                // 設定會員編號
+                // 設定會員編號：直接使用 Excel 檔案內容（不自動產生）
                 if (!empty($memberCode)) {
                     $member->member_code = $memberCode;
                 }
-                // 如果 Excel 沒提供，會在 beforeValidate 中自動生成
+
+                // 密碼處理：新增會員時，如果 Excel 中有提供密碼則設定
+                // 如果密碼為空則不設定（可能導致無法登入，但允許後續手動設定）
+                if (!empty($password) && trim($password) !== '') {
+                    $member->setPassword($password);
+                }
             }
             // 設定會員其他資料
             $member->name = $name;
-
-            if (!empty($password)) {
-                $member->setPassword($password);
-            }
             if (!empty($mobile)) {
                 $member->mobile = $mobile;
             }

@@ -47,6 +47,17 @@ TwCityAsset::register($this);
                             <div class="hr-line-dashed"></div>
 
                             <div class="form-group">
+                                <label for="<?= Html::getInputId($model, 'member_code') ?>"
+                                       class="col-sm-2 control-label">會員編號</label>
+                                <div class="col-sm-10">
+                                    <?= Html::activeTextInput($model, 'member_code',
+                                        ['class' => 'form-control', 'placeholder' => '請輸入會員編號', 'maxlength' => 10, 'data-v-rule' => '', 'data-v-msg' => '請輸入會員編號']) ?>
+                                    <span class="help-block m-b-none">會員編號必須唯一，不可重複</span>
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+
+                            <div class="form-group">
                                 <label for="<?= Html::getInputId($model, 'password') ?>"
                                        class="col-sm-2 control-label">密碼</label>
                                 <div class="col-sm-10">

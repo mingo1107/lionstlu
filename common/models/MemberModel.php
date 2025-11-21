@@ -55,9 +55,14 @@ class MemberModel extends Member implements IdentityInterface
         array_push(
             $rules,
             [['password_hash', 'email', 'mobile', 'city', 'district', 'zip', 'name'], 'required', 'on' => self::SCENARIO_CREATE],
-            [['password'], 'safe', 'on' => static::SCENARIO_CREATE],
+            [['password', 'member_code'], 'safe', 'on' => static::SCENARIO_CREATE],
             [['password_hash', 'email', 'mobile', 'city', 'district', 'mobile', 'zip', 'name'], 'required', 'on' => self::SCENARIO_UPDATE],
-            [['password', 'password2'], 'safe', 'on' => static::SCENARIO_UPDATE],
+            [['password', 'password2', 'member_code'], 'safe', 'on' => static::SCENARIO_UPDATE],
+            [['member_code'], 'unique', 'targetAttribute' => 'member_code', 'filter' => function($query) {
+                if (!$this->isNewRecord) {
+                    $query->andWhere(['!=', 'id', $this->id]);
+                }
+            }, 'skipOnEmpty' => true, 'on' => [self::SCENARIO_CREATE, self::SCENARIO_UPDATE]],
             [['username', 'name', 'area_id'], 'required', 'on' => self::SCENARIO_SIGNUP],
             [['password', 'area_id'], 'safe', 'on' => static::SCENARIO_SIGNUP],
             [['password'], 'required', 'on' => self::SCENARIO_PASSWORD_RESET],
@@ -70,6 +75,9 @@ class MemberModel extends Member implements IdentityInterface
     public function beforeValidate()
     {
         if (parent::beforeValidate()) {
+            // 統一處理 member_code 的補零（在所有場景下）
+            $this->normalizeMemberCode();
+            
             if ($this->scenario == self::SCENARIO_CREATE || $this->scenario == self::SCENARIO_SIGNUP) {
                 // 自動使用 email 作為 username
                 if (!empty($this->email)) {
@@ -77,7 +85,7 @@ class MemberModel extends Member implements IdentityInterface
                 }
                 $this->generatePasswordResetToken();
                 $this->generateRegisterToken(); // 產生註冊驗證 token
-                $this->generateMemberCode(); // 產生會員編號
+                // member_code 不再自動產生，由後端人員手動輸入
                 $this->country = '台灣';
                 $this->status = self::STATUS_ONLINE;
                 $this->validate = self::VALIDATE_NO;
@@ -93,9 +101,7 @@ class MemberModel extends Member implements IdentityInterface
                 }
                 // 如果是新會員（沒有 ID），才設定預設值
                 if ($this->isNewRecord) {
-                    if (empty($this->member_code)) {
-                        $this->generateMemberCode(); // 產生會員編號（如果 Excel 沒提供）
-                    }
+                    // member_code 不再自動產生，直接使用 Excel 檔案內容
                     $this->generatePasswordResetToken();
                     $this->country = '台灣';
                     $this->status = self::STATUS_ONLINE;
@@ -119,12 +125,26 @@ class MemberModel extends Member implements IdentityInterface
                 $this->update_time = new Expression('now()');
             } else if ($this->scenario == static::SCENARIO_PASSWORD_RESET) {
                 $this->setPassword($this->password);
-                $this->generatePasswordResetToken();
-                $this->update_time = new Expression('now()');
             }
+            
             return true;
         } else {
             return false;
+        }
+    }
+
+    /**
+     * 正規化會員編號：自動補零到四位數
+     * 例如：1 -> 0001, 12 -> 0012, 123 -> 0123, 1234 -> 1234
+     */
+    private function normalizeMemberCode()
+    {
+        // 如果 member_code 不為空，且是純數字，則補零到四位數
+        if (!empty($this->member_code) && is_numeric($this->member_code)) {
+            // 轉換為整數再補零，避免小數點問題
+            $code = intval($this->member_code);
+            // 補零到四位數
+            $this->member_code = str_pad($code, 4, '0', STR_PAD_LEFT);
         }
     }
 
