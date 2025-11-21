@@ -73,8 +73,8 @@ class MemberController extends BackendController
      */
     public function actionDownloadTemplate()
     {
-        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
+        $objPHPExcel = new \PHPExcel();
+        $sheet = $objPHPExcel->getActiveSheet();
 
         // 設定標題行
         $headers = [
@@ -93,21 +93,28 @@ class MemberController extends BackendController
             '會員期限訖'
         ];
 
+        // 設定標題行
+        $colIndex = 0;
+        foreach ($headers as $header) {
+            $sheet->setCellValueByColumnAndRow($colIndex, 1, $header);
+            $sheet->getColumnDimensionByColumn($colIndex)->setWidth(15);
+            $colIndex++;
+        }
+
         // 設定標題行樣式
         $headerStyle = [
-            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-            'fill' => [
-                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                'startColor' => ['rgb' => '4472C4']
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF']
             ],
-            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]
+            'fill' => [
+                'type' => \PHPExcel_Style_Fill::FILL_SOLID,
+                'startcolor' => ['rgb' => '4472C4']
+            ],
+            'alignment' => [
+                'horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_CENTER
+            ]
         ];
-
-        foreach ($headers as $col => $header) {
-            $cell = $sheet->getCellByColumnAndRow($col + 1, 1);
-            $cell->setValue($header);
-            $sheet->getColumnDimensionByColumn($col + 1)->setWidth(15);
-        }
         $sheet->getStyle('A1:M1')->applyFromArray($headerStyle);
 
         // 查詢所有會員資料（包含區域名稱）
@@ -145,8 +152,10 @@ class MemberController extends BackendController
                 $formatDate($member->period_end)                // 會員期限訖
             ];
 
-            foreach ($rowData as $col => $value) {
-                $sheet->getCellByColumnAndRow($col + 1, $rowIndex)->setValue($value);
+            $colIndex = 0;
+            foreach ($rowData as $value) {
+                $sheet->setCellValueByColumnAndRow($colIndex, $rowIndex, $value);
+                $colIndex++;
             }
             $rowIndex++;
         }
@@ -157,8 +166,8 @@ class MemberController extends BackendController
         header('Content-Disposition: attachment;filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
 
-        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
-        $writer->save('php://output');
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+        $objWriter->save('php://output');
         exit;
     }
 
@@ -171,7 +180,6 @@ class MemberController extends BackendController
         $updateCount = 0;  // 更新筆數
         $failCount = 0;    // 失敗筆數
         $failedRecords = [];
-        $uploadFile = null;
         $totalRows = 0;
         $skippedRows = 0;
 
@@ -180,20 +188,19 @@ class MemberController extends BackendController
 
             if ($file && $file->tempName) {
                 try {
-                    // 載入 Excel 文件
-                    $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->tempName);
-                    $worksheet = $spreadsheet->getActiveSheet();
-                    $rows = $worksheet->toArray();
+                    // 使用最簡單直接的方式讀取 Excel
+                    // 直接讀取格式化的字串值，完全避免 PHPExcel 的類型判斷問題
+                    $rows = $this->readExcelFile($file->tempName);
                     $totalRows = count($rows) - 1; // 扣除標題行
 
-                    // 跳過第一行（標題行）
+                    // 跳過第一行（標題行），從第二行開始處理
                     for ($i = 1; $i < count($rows); $i++) {
                         $row = $rows[$i];
 
                         // 跳過完全空白的行（檢查前5個欄位）
                         $isEmpty = true;
-                        for ($j = 0; $j < 5; $j++) {
-                            if (isset($row[$j]) && trim($row[$j]) !== '') {
+                        for ($j = 0; $j < 5 && $j < count($row); $j++) {
+                            if (!empty(trim($row[$j]))) {
                                 $isEmpty = false;
                                 break;
                             }
@@ -231,9 +238,28 @@ class MemberController extends BackendController
                     if ($failCount > 0) {
                         $message .= " 失敗 {$failCount} 筆";
                     }
+                    if ($skippedRows > 0) {
+                        $message .= " 略過 {$skippedRows} 筆空白行";
+                    }
                     HtmlHelper::setMessage($message);
                 } catch (\Exception $e) {
-                    HtmlHelper::setError('檔案解析失敗：' . $e->getMessage());
+                    // 記錄詳細錯誤到日誌
+                    Yii::error(
+                        '匯入會員檔案失敗：' . $e->getMessage() .
+                            ' | 檔案：' . $e->getFile() .
+                            ' | 行號：' . $e->getLine() .
+                            ' | 堆疊：' . $e->getTraceAsString(),
+                        'member-import'
+                    );
+
+                    // 顯示詳細錯誤訊息（開發環境）
+                    $errorMsg = '檔案解析失敗：' . $e->getMessage();
+                    if (YII_DEBUG) {
+                        $errorMsg .= '<br>檔案：' . $e->getFile() .
+                            '<br>行號：' . $e->getLine() .
+                            '<br>堆疊：<pre>' . htmlspecialchars($e->getTraceAsString()) . '</pre>';
+                    }
+                    HtmlHelper::setError($errorMsg);
                 }
             } else {
                 HtmlHelper::setError('請選擇要匯入的 Excel 檔案');
@@ -249,6 +275,65 @@ class MemberController extends BackendController
     }
 
     /**
+     * 讀取 Excel 檔案內容
+     * 使用最安全的方式：直接讀取格式化字串值，避免 PHPExcel 的類型判斷問題
+     * 
+     * @param string $filePath Excel 檔案路徑
+     * @return array 二維陣列，每一行是一個陣列
+     * @throws \Exception
+     */
+    private function readExcelFile($filePath)
+    {
+        // 🔒 使用最安全的方式讀取 Excel：getFormattedValue()
+        // 完全避免 PHPExcel 在 PHP 7.2 的 offset 錯誤
+        \PHPExcel_Cell::setValueBinder(new \backend\helpers\SafeValueBinder());
+
+        try {
+            // 讀取 Excel
+            $objPHPExcel = \PHPExcel_IOFactory::load($filePath);
+            $sheet = $objPHPExcel->getActiveSheet();
+
+            $highestRow = $sheet->getHighestRow();
+            $highestColumn = $sheet->getHighestColumn();
+
+            // 將欄位字母轉成數字（A=1, B=2...）
+            $highestColumnIndex = \PHPExcel_Cell::columnIndexFromString($highestColumn);
+
+            // 固定模板欄位數 (13 欄)，如果 Excel 比這多就多讀
+            $maxCols = max($highestColumnIndex, 13);
+
+            $rows = [];
+
+            for ($row = 1; $row <= $highestRow; $row++) {
+                $rowData = [];
+
+                for ($col = 0; $col < $maxCols; $col++) {
+                    try {
+                        $cellAddress = \PHPExcel_Cell::stringFromColumnIndex($col) . $row;
+                        $cell = $sheet->getCell($cellAddress);
+
+                        // 使用最安全的可讀格式：一定是字串
+                        $value = $cell->getFormattedValue();
+
+                        $rowData[] = ($value === null) ? '' : (string)$value;
+                    } catch (\Exception $e) {
+                        // 避免 Excel 的奇怪 cell 導致中斷
+                        $rowData[] = '';
+                    }
+                }
+
+                $rows[] = $rowData;
+            }
+
+            return $rows;
+        } finally {
+            // 恢復預設 ValueBinder（避免影響其他功能）
+            \PHPExcel_Cell::setValueBinder(new \PHPExcel_Cell_DefaultValueBinder());
+        }
+    }
+
+
+    /**
      * 匯入單筆會員資料
      * @param array $row Excel 行數據
      * @return array
@@ -256,23 +341,28 @@ class MemberController extends BackendController
     private function importMemberRow($row)
     {
         try {
+            // 記錄處理的行資料（用於除錯）
+            if (YII_DEBUG) {
+                Yii::trace('處理會員資料行：' . json_encode($row, JSON_UNESCAPED_UNICODE), 'member-import');
+            }
             // 解析欄位 (索引從 0 開始)
-            $memberCode = isset($row[0]) && trim($row[0]) !== '' ? trim($row[0]) : '';
+            // 將所有值轉換為字串，避免整數類型問題
+            $memberCode = isset($row[0]) ? trim((string)$row[0]) : '';
             // 如果 member_code 是純數字，自動補零到四位數（Excel 可能會過濾掉前面的 0）
             if (!empty($memberCode) && is_numeric($memberCode)) {
                 $code = intval($memberCode);
                 $memberCode = str_pad($code, 4, '0', STR_PAD_LEFT);
             }
-            $areaName = isset($row[1]) && trim($row[1]) !== '' ? trim($row[1]) : '';
-            $email = isset($row[2]) && trim($row[2]) !== '' ? trim($row[2]) : '';
-            $password = isset($row[3]) && trim($row[3]) !== '' ? trim($row[3]) : '';
-            $name = isset($row[4]) && trim($row[4]) !== '' ? trim($row[4]) : '';
-            $mobile = isset($row[5]) && trim($row[5]) !== '' ? trim($row[5]) : '';
+            $areaName = isset($row[1]) ? trim((string)$row[1]) : '';
+            $email = isset($row[2]) ? trim((string)$row[2]) : '';
+            $password = isset($row[3]) ? trim((string)$row[3]) : '';
+            $name = isset($row[4]) ? trim((string)$row[4]) : '';
+            $mobile = isset($row[5]) ? trim((string)$row[5]) : '';
             $birthday = isset($row[6]) ? $this->parseExcelDate($row[6]) : null;
-            $city = isset($row[7]) && trim($row[7]) !== '' ? $this->normalizeCityName(trim($row[7])) : '';
-            $district = isset($row[8]) && trim($row[8]) !== '' ? $this->normalizeDistrictName(trim($row[8])) : '';
-            $address = isset($row[9]) && trim($row[9]) !== '' ? trim($row[9]) : '';
-            $otherCity = isset($row[10]) && trim($row[10]) !== '' ? trim($row[10]) : '';
+            $city = isset($row[7]) ? $this->normalizeCityName(trim((string)$row[7])) : '';
+            $district = isset($row[8]) ? $this->normalizeDistrictName(trim((string)$row[8])) : '';
+            $address = isset($row[9]) ? trim((string)$row[9]) : '';
+            $otherCity = isset($row[10]) ? trim((string)$row[10]) : '';
             $periodStart = isset($row[11]) ? $this->parseExcelDate($row[11]) : null;
             $periodEnd = isset($row[12]) ? $this->parseExcelDate($row[12]) : null;
 
@@ -299,7 +389,7 @@ class MemberController extends BackendController
             // 檢查 Email 是否已存在
             $member = MemberModel::findOne(['username' => $email]);
             $isNewRecord = empty($member);
-            
+
             // 檢查 member_code 是否已存在（如果提供了 member_code）
             if (!empty($memberCode)) {
                 $existingMemberByCode = MemberModel::findOne(['member_code' => $memberCode]);
@@ -334,10 +424,18 @@ class MemberController extends BackendController
                     $member->member_code = $memberCode;
                 }
 
-                // 密碼處理：新增會員時，如果 Excel 中有提供密碼則設定
-                // 如果密碼為空則不設定（可能導致無法登入，但允許後續手動設定）
+                // 密碼處理：新增會員時必須設定密碼
                 if (!empty($password) && trim($password) !== '') {
+                    // 如果 Excel 中有提供密碼，使用提供的密碼
                     $member->setPassword($password);
+                } else {
+                    // 如果密碼為空，設定預設密碼（會員編號 + email 前綴，或隨機密碼）
+                    // 建議使用會員編號作為預設密碼，方便記憶
+                    $defaultPassword = !empty($memberCode) ? $memberCode : substr($email, 0, strpos($email, '@'));
+                    $member->setPassword($defaultPassword);
+
+                    // 記錄使用預設密碼的會員（方便後續通知）
+                    Yii::info("會員 {$email} 使用預設密碼：{$defaultPassword}", 'member-import');
                 }
             }
             // 設定會員其他資料
@@ -382,7 +480,20 @@ class MemberController extends BackendController
                 return ['success' => false, 'action' => '', 'error' => implode('; ', $errors)];
             }
         } catch (\Exception $e) {
-            return ['success' => false, 'action' => '', 'error' => $e->getMessage()];
+            // 記錄詳細錯誤
+            Yii::error(
+                '匯入單筆會員資料失敗：' . $e->getMessage() .
+                    ' | 檔案：' . $e->getFile() .
+                    ' | 行號：' . $e->getLine() .
+                    ' | 資料：' . json_encode($row, JSON_UNESCAPED_UNICODE),
+                'member-import'
+            );
+
+            $errorMsg = $e->getMessage();
+            if (YII_DEBUG) {
+                $errorMsg .= ' (檔案：' . basename($e->getFile()) . '，行號：' . $e->getLine() . ')';
+            }
+            return ['success' => false, 'action' => '', 'error' => $errorMsg];
         }
     }
 
@@ -414,20 +525,23 @@ class MemberController extends BackendController
      */
     private function parseExcelDate($value)
     {
-        if (empty($value)) {
+        if (empty($value) && $value !== 0 && $value !== '0') {
             return null;
         }
 
+        // 將值轉換為字串進行檢查
+        $valueStr = (string)$value;
+
         // 如果已經是字串格式的日期
-        if (is_string($value) && preg_match('/^\d{4}[-\/]\d{1,2}[-\/]\d{1,2}$/', $value)) {
-            return date('Y-m-d', strtotime($value));
+        if (preg_match('/^\d{4}[-\/]\d{1,2}[-\/]\d{1,2}$/', $valueStr)) {
+            return date('Y-m-d', strtotime($valueStr));
         }
 
         // 如果是 Excel 的數字日期格式
         if (is_numeric($value)) {
             try {
-                $date = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value);
-                return $date->format('Y-m-d');
+                $timestamp = \PHPExcel_Shared_Date::ExcelToPHP((float)$value);
+                return date('Y-m-d', $timestamp);
             } catch (\Exception $e) {
                 return null;
             }
