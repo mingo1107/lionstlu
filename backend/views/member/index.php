@@ -59,7 +59,7 @@ use yii\helpers\Html;
                 <?= Html::textInput(
                     'keyword',
                     isset($search['keyword']) ? $search['keyword'] : '',
-                    ['class' => 'form-control', 'placeholder' => '搜尋關鍵字（姓名/帳號/Email）']
+                    ['class' => 'form-control', 'placeholder' => '搜尋關鍵字（姓名/帳號/Email/手機）']
                 ) ?>
             </div>
             <button type="submit" class="btn btn-default">搜尋</button>
@@ -77,24 +77,27 @@ use yii\helpers\Html;
                             class="btn btn-primary">建立<?= $actionLabel ?></a>
                         <a href="/<?= Yii::$app->controller->id ?>/import"
                             class="btn btn-success">匯入<?= $actionLabel ?></a>
+                        <a href="/<?= Yii::$app->controller->id ?>/download-template"
+                            class="btn btn-success">匯出會員Excel</a>
                     </div>
                     <?php if (!empty($list)): ?>
                         <div class="table-responsive">
                             <table class="table table-striped table-bordered table-hover dataTables-example">
                                 <thead>
                                     <tr>
-                                        <th class="text-center" width="4%">
+                                        <th class="text-center" width="3%">
                                             <input type="checkbox" id="_select-all" name="_select-all" value="1" />
                                         </th>
-                                        <th class="text-center" width="6%">會員編號</th>
-                                        <th class="text-center" width="12%">帳號/姓名</th>
-                                        <th class="text-center" width="8%">區域</th>
-                                        <th class="text-center" width="6%">狀態</th>
-                                        <th class="text-center" width="6%">驗證</th>
-                                        <th class="text-center" width="16%">會員期限</th>
-                                        <th class="text-center" width="6%">登入次數</th>
-                                        <th class="text-center" width="10%">最後登入</th>
-                                        <th class="text-center" width="10%">操作</th>
+                                        <th class="text-center" width="5%">ID</th>
+                                        <th class="text-center" width="11%">帳號/姓名</th>
+                                        <th class="text-center" width="9%">區域/分會</th>
+                                        <th class="text-center" width="8%">電話</th>
+                                        <th class="text-center" width="5%">狀態</th>
+                                        <th class="text-center" width="5%">驗證</th>
+                                        <th class="text-center" width="14%">會員期限</th>
+                                        <th class="text-center" width="5%">登入次數</th>
+                                        <th class="text-center" width="9%">最後登入</th>
+                                        <th class="text-center" width="9%">操作</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -103,12 +106,12 @@ use yii\helpers\Html;
                                         // 計算會員期限狀態
                                         $periodText = '未設定';
                                         $periodClass = 'text-muted';
-                                        
+
                                         if (!empty($model->period_start) || !empty($model->period_end)) {
                                             $start = $model->period_start ?: '不限';
                                             $end = $model->period_end ?: '不限';
                                             $periodText = $start . '<br>～<br>' . $end;
-                                            
+
                                             // 檢查是否過期或未生效
                                             $now = time();
                                             if (!empty($model->period_end) && strtotime($model->period_end . ' 23:59:59') < $now) {
@@ -125,12 +128,18 @@ use yii\helpers\Html;
                                                 <input type="checkbox" id="_select-<?= $model->id ?>" name="_select[]"
                                                     value="<?= $model->id ?>" />
                                             </th>
-                                            <td class="text-center"><?= Html::encode($model->member_code ?: '－') ?></td>
+                                            <td class="text-center"><?= str_pad($model->id, 4, '0', STR_PAD_LEFT) ?></td>
                                             <td class="text-center">
                                                 <div><?= Html::encode($model->username) ?></div>
                                                 <div style="font-size: 12px; color: #999;"><?= Html::encode($model->name) ?></div>
                                             </td>
-                                            <td class="text-center"><?= !empty($model->area_name) ? Html::encode($model->area_name) : '未設定' ?></td>
+                                            <td class="text-center">
+                                                <div><?= !empty($model->area_name) ? Html::encode($model->area_name) : '未設定' ?></div>
+                                                <?php if (!empty($model->club_name)): ?>
+                                                    <div style="font-size: 12px; color: #999;"><?= Html::encode($model->club_name) ?></div>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td class="text-center" style="font-size: 12px;"><?= !empty($model->phone) ? Html::encode($model->phone) : '-' ?></td>
                                             <td class="text-center"><?= MemberModel::$statusLabel[$model->status] ?></td>
                                             <td class="text-center"><?= isset(MemberModel::$validateLabel[$model->validate]) ? MemberModel::$validateLabel[$model->validate] : '未知' ?></td>
                                             <td class="text-center <?= $periodClass ?>" style="font-size: 12px;">

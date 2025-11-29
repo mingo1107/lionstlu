@@ -40,8 +40,7 @@ FormValidateAsset::register($this);
                     </div>
                     <div class="form-group">
                         <?= Html::activeTextInput($model, 'name',
-                            ['placeholder' => '暱稱', 'class' => 'form-control',
-                                'data-v-rule' => '', 'data-v-msg' => '請輸入暱稱']) ?>
+                            ['placeholder' => '名字', 'class' => 'form-control']) ?>
                     </div>
                     <?= HtmlHelper::displayFlash() ?>
                     <!--                <div class="checkbox">-->
@@ -64,8 +63,15 @@ FormValidateAsset::register($this);
     parent.location.reload();
     <?php endif;?>
     (function () {
+        var formParams = {
+            '<?= Html::getInputName($model, 'name') ?>': [function () {
+                var name = document.getElementById('<?= Html::getInputId($model, 'name') ?>');
+                return /^[\u4e00-\u9fa5]+$/.test($.trim(name.value));
+            }, '名稱只能輸入中文']
+        };
+
         $('#main-form').submit(function () {
-            if ($(this).formValidate()) {
+            if ($(this).formValidate(formParams)) {
                 $('input[type="submit"]').attr('disabled', 'disabled');
                 return true;
             }

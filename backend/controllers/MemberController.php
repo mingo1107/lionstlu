@@ -68,6 +68,14 @@ class MemberController extends BackendController
         }
     }
 
+    public function actionDelete()
+    {
+        $id = intval(Yii::$app->request->get('id'));
+        MemberModel::deleteAll(['id' => $id]);
+        HtmlHelper::setMessage('刪除成功');
+        return $this->redirect(['index' . $this->queryString]);
+    }
+
     /**
      * 匯出會員資料
      */
@@ -137,7 +145,7 @@ class MemberController extends BackendController
             };
 
             $rowData = [
-                $member->member_code ?? '',                    // ID(四位數0001)
+                isset($member->id) ? str_pad($member->id, 4, '0', STR_PAD_LEFT) : '',  // ID(四位數)
                 $member->area_name ?? '',                       // 區
                 $member->email ?? '',                           // 帳號(Email)
                 '',                                             // 密碼（留空，因為是加密的）
@@ -162,6 +170,66 @@ class MemberController extends BackendController
 
         // 輸出檔案
         $filename = '會員資料匯出_' . date('YmdHis') . '.xlsx';
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+        $objWriter->save('php://output');
+        exit;
+    }
+
+    /**
+     * 匯出空白 Excel 範本
+     */
+    public function actionDownloadEmptyTemplate()
+    {
+        $objPHPExcel = new \PHPExcel();
+        $sheet = $objPHPExcel->getActiveSheet();
+
+        // 設定標題行
+        $headers = [
+            'ID(四位數0001)',
+            '區',
+            '帳號(Email)',
+            '密碼',
+            '名稱(姓名)',
+            '手機',
+            '生日',
+            '所在城市',
+            '所在區域',
+            '所在地址',
+            '其他城市',
+            '會員期限起',
+            '會員期限訖'
+        ];
+
+        // 設定標題行
+        $colIndex = 0;
+        foreach ($headers as $header) {
+            $sheet->setCellValueByColumnAndRow($colIndex, 1, $header);
+            $sheet->getColumnDimensionByColumn($colIndex)->setWidth(15);
+            $colIndex++;
+        }
+
+        // 設定標題行樣式
+        $headerStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF']
+            ],
+            'fill' => [
+                'type' => \PHPExcel_Style_Fill::FILL_SOLID,
+                'startcolor' => ['rgb' => '4472C4']
+            ],
+            'alignment' => [
+                'horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_CENTER
+            ]
+        ];
+        $sheet->getStyle('A1:M1')->applyFromArray($headerStyle);
+
+        // 輸出檔案
+        $filename = '會員匯入空白範本_' . date('YmdHis') . '.xlsx';
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
@@ -277,7 +345,7 @@ class MemberController extends BackendController
     /**
      * 讀取 Excel 檔案內容
      * 使用最安全的方式：直接讀取格式化字串值，避免 PHPExcel 的類型判斷問題
-     * 
+     *
      * @param string $filePath Excel 檔案路徑
      * @return array 二維陣列，每一行是一個陣列
      * @throws \Exception
@@ -347,24 +415,19 @@ class MemberController extends BackendController
             }
             // 解析欄位 (索引從 0 開始)
             // 將所有值轉換為字串，避免整數類型問題
-            $memberCode = isset($row[0]) ? trim((string)$row[0]) : '';
-            // 如果 member_code 是純數字，自動補零到四位數（Excel 可能會過濾掉前面的 0）
-            if (!empty($memberCode) && is_numeric($memberCode)) {
-                $code = intval($memberCode);
-                $memberCode = str_pad($code, 4, '0', STR_PAD_LEFT);
-            }
-            $areaName = isset($row[1]) ? trim((string)$row[1]) : '';
-            $email = isset($row[2]) ? trim((string)$row[2]) : '';
-            $password = isset($row[3]) ? trim((string)$row[3]) : '';
-            $name = isset($row[4]) ? trim((string)$row[4]) : '';
-            $mobile = isset($row[5]) ? trim((string)$row[5]) : '';
-            $birthday = isset($row[6]) ? $this->parseExcelDate($row[6]) : null;
-            $city = isset($row[7]) ? $this->normalizeCityName(trim((string)$row[7])) : '';
-            $district = isset($row[8]) ? $this->normalizeDistrictName(trim((string)$row[8])) : '';
-            $address = isset($row[9]) ? trim((string)$row[9]) : '';
-            $otherCity = isset($row[10]) ? trim((string)$row[10]) : '';
-            $periodStart = isset($row[11]) ? $this->parseExcelDate($row[11]) : null;
-            $periodEnd = isset($row[12]) ? $this->parseExcelDate($row[12]) : null;
+            // 第一個欄位 (索引 0) 是會員編號，已改用資料庫 ID，匯入時直接略過
+            $areaName = isset($row[1]) ? trim((string)$row[1]) : '';      // 區
+            $email = isset($row[2]) ? trim((string)$row[2]) : '';         // 帳號(Email)
+            $password = isset($row[3]) ? trim((string)$row[3]) : '';      // 密碼
+            $name = isset($row[4]) ? trim((string)$row[4]) : '';          // 名稱(姓名)
+            $mobile = isset($row[5]) ? trim((string)$row[5]) : '';        // 手機
+            $birthday = isset($row[6]) ? $this->parseExcelDate($row[6]) : null;  // 生日
+            $city = isset($row[7]) ? $this->normalizeCityName(trim((string)$row[7])) : '';  // 所在城市
+            $district = isset($row[8]) ? $this->normalizeDistrictName(trim((string)$row[8])) : '';  // 所在區域
+            $address = isset($row[9]) ? trim((string)$row[9]) : '';       // 所在地址
+            $otherCity = isset($row[10]) ? trim((string)$row[10]) : '';   // 其他城市
+            $periodStart = isset($row[11]) ? $this->parseExcelDate($row[11]) : null;  // 會員期限起
+            $periodEnd = isset($row[12]) ? $this->parseExcelDate($row[12]) : null;    // 會員期限訖
 
             // 驗證必填欄位
             if (empty($email)) {
@@ -390,23 +453,9 @@ class MemberController extends BackendController
             $member = MemberModel::findOne(['username' => $email]);
             $isNewRecord = empty($member);
 
-            // 檢查 member_code 是否已存在（如果提供了 member_code）
-            if (!empty($memberCode)) {
-                $existingMemberByCode = MemberModel::findOne(['member_code' => $memberCode]);
-                // 如果 member_code 已存在，且不是同一個會員，則報錯
-                if ($existingMemberByCode && ($isNewRecord || $existingMemberByCode->id != $member->id)) {
-                    return ['success' => false, 'action' => '', 'error' => "會員編號「{$memberCode}」已存在，請使用其他編號"];
-                }
-            }
-
             if ($member) {
                 // 更新現有會員
                 $member->scenario = MemberModel::SCENARIO_IMPORT;
-
-                // 設定會員編號：直接使用 Excel 檔案內容（不自動產生）
-                if (!empty($memberCode)) {
-                    $member->member_code = $memberCode;
-                }
 
                 // 密碼處理：更新會員時，只有當 Excel 中有提供密碼時才更新
                 // 如果密碼為空則不更新，避免覆蓋原本的密碼
@@ -419,19 +468,13 @@ class MemberController extends BackendController
                 $member = new MemberModel(['scenario' => MemberModel::SCENARIO_IMPORT]);
                 $member->email = $email;
 
-                // 設定會員編號：直接使用 Excel 檔案內容（不自動產生）
-                if (!empty($memberCode)) {
-                    $member->member_code = $memberCode;
-                }
-
                 // 密碼處理：新增會員時必須設定密碼
                 if (!empty($password) && trim($password) !== '') {
                     // 如果 Excel 中有提供密碼，使用提供的密碼
                     $member->setPassword($password);
                 } else {
-                    // 如果密碼為空，設定預設密碼（會員編號 + email 前綴，或隨機密碼）
-                    // 建議使用會員編號作為預設密碼，方便記憶
-                    $defaultPassword = !empty($memberCode) ? $memberCode : substr($email, 0, strpos($email, '@'));
+                    // 如果密碼為空，使用 email 前綴作為預設密碼
+                    $defaultPassword = substr($email, 0, strpos($email, '@'));
                     $member->setPassword($defaultPassword);
 
                     // 記錄使用預設密碼的會員（方便後續通知）

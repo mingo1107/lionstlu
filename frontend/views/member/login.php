@@ -61,7 +61,7 @@ FormValidateAsset::register($this);
                     <?= HtmlHelper::displayFlash() ?>
                     <div class="checkbox">
                         <!--                        <label>-->
-                        <!--                            <input name="--><? //= Html::getInputName($model, 'rememberMe') 
+                        <!--                            <input name="--><? //= Html::getInputName($model, 'rememberMe')
                                                                         ?><!--" type="checkbox"-->
                         <!--                                   value="1" checked="checked">-->
                         <!--                            保持登入 </label>-->
@@ -119,10 +119,8 @@ FormValidateAsset::register($this);
                             $signupModel,
                             'name',
                             [
-                                'placeholder' => '暱稱',
-                                'class' => 'form-control input-lg',
-                                'data-v-rule' => '',
-                                'data-v-msg' => '請輸入暱稱'
+                                'placeholder' => '名字',
+                                'class' => 'form-control input-lg'
                             ]
                         ) ?>
                     </div>
@@ -199,6 +197,10 @@ FormValidateAsset::register($this);
 
         $('#signup-form').submit(function() {
             var formParams = {
+                '<?= Html::getInputName($signupModel, 'name') ?>': [function () {
+                    var name = document.getElementById('<?= Html::getInputId($signupModel, 'name') ?>');
+                    return /^[\u4e00-\u9fa5]+$/.test($.trim(name.value));
+                }, '名稱只能輸入中文'],
                 '<?= Html::getInputName($signupModel, 'area_id') ?>': [function() {
                     var areaId = document.getElementById('<?= Html::getInputId($signupModel, 'area_id') ?>');
                     if (areaId.value && areaId.value !== '') {

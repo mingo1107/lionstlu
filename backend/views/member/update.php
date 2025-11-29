@@ -41,15 +41,9 @@ TwCityAsset::register($this);
                         <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>"
                             value="<?= Yii::$app->request->csrfToken ?>" />
                         <div class="form-group">
-                            <label for="<?= Html::getInputId($model, 'member_code') ?>"
-                                class="col-sm-2 control-label">會員編號</label>
+                            <label class="col-sm-2 control-label">會員編號</label>
                             <div class="col-sm-10">
-                                <?= Html::activeTextInput(
-                                    $model,
-                                    'member_code',
-                                    ['class' => 'form-control', 'placeholder' => '請輸入會員編號', 'maxlength' => 10]
-                                ) ?>
-                                <span class="help-block m-b-none">會員編號必須唯一，不可重複</span>
+                                <p class="form-control-static"><?= $model->getFormattedId() ?></p>
                             </div>
                         </div>
                         <div class="hr-line-dashed"></div>
@@ -216,7 +210,7 @@ TwCityAsset::register($this);
                                 <?= Html::activeTextInput(
                                     $model,
                                     'name',
-                                    ['class' => 'form-control', 'data-v-rule' => '', 'data-v-msg' => '請填入名稱']
+                                    ['class' => 'form-control']
                                 ) ?>
                             </div>
                         </div>
@@ -272,6 +266,19 @@ TwCityAsset::register($this);
                         <div class="hr-line-dashed"></div>
 
                         <div class="form-group">
+                            <label for="<?= Html::getInputId($model, 'club_name') ?>"
+                                class="col-sm-2 control-label">分會名稱</label>
+                            <div class="col-sm-10">
+                                <?= Html::activeTextInput(
+                                    $model,
+                                    'club_name',
+                                    ['class' => 'form-control', 'placeholder' => '請輸入分會名稱']
+                                ) ?>
+                            </div>
+                        </div>
+                        <div class="hr-line-dashed"></div>
+
+                        <div class="form-group">
                             <div id="city-selector">
                                 <label class="col-sm-2 control-label">所在城市</label>
                                 <div class="col-sm-10 margin-bottom-2">
@@ -305,6 +312,19 @@ TwCityAsset::register($this);
                         <div class="hr-line-dashed"></div>
 
                         <div class="form-group">
+                            <label for="<?= Html::getInputId($model, 'other_city') ?>"
+                                class="col-sm-2 control-label">其他城市</label>
+                            <div class="col-sm-10">
+                                <?= Html::activeTextInput(
+                                    $model,
+                                    'other_city',
+                                    ['class' => 'form-control', 'placeholder' => '請輸入其他城市']
+                                ) ?>
+                            </div>
+                        </div>
+                        <div class="hr-line-dashed"></div>
+
+                        <div class="form-group">
                             <div class="col-sm-2"></div>
                             <div class="col-sm-10">
                                 <button type="submit" class="btn btn-primary mr10">送出</button>
@@ -321,6 +341,10 @@ TwCityAsset::register($this);
 <script>
     (function() {
         var formParams = {
+            '<?= Html::getInputName($model, 'name') ?>': [function () {
+                var name = document.getElementById('<?= Html::getInputId($model, 'name') ?>');
+                return /^[\u4e00-\u9fa5]+$/.test($.trim(name.value));
+            }, '名稱只能輸入中文'],
             '<?= Html::getInputName($model, 'password') ?>': [function() {
                 var password = document.getElementById('<?= Html::getInputId($model, 'password') ?>');
                 var password2 = document.getElementById('<?= Html::getInputId($model, 'password2') ?>');

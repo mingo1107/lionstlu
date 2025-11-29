@@ -43,8 +43,7 @@ TwCityAsset::register($this);
                             <label for="" class="col-sm-2 col-xs-12 control-label"><span class="note">＊</span>名稱</label>
                             <div class="col-sm-10 col-xs-12">
                                 <?= Html::activeTextInput($member, 'name',
-                                    ['class' => 'form-control input-lg', 'placeholder' => '名稱',
-                                        'data-v-rule' => '', 'data-v-msg' => '請輸入名稱']) ?>
+                                    ['class' => 'form-control input-lg', 'placeholder' => '名稱']) ?>
                             </div>
                         </div>
 
@@ -71,6 +70,12 @@ TwCityAsset::register($this);
                             </div>
                         </div>
                         <div class="form-group border-dashed">
+                            <label for="" class="col-sm-2 col-xs-12 control-label">分會名稱</label>
+                            <div class="col-sm-10 col-xs-12">
+                                <p class="form-control-static"><?= Html::encode($member->club_name ?: '未設定') ?></p>
+                            </div>
+                        </div>
+                        <div class="form-group border-dashed">
                             <label for="" class="col-sm-2 col-xs-12 control-label">生日</label>
                             <div class="col-sm-10 col-xs-12">
                                 <div class="input-group date">
@@ -84,20 +89,19 @@ TwCityAsset::register($this);
                             </div>
                         </div>
                         <div id="city-selector" class="form-group border-dashed">
-                            <label for="" class="col-sm-2 col-xs-12 control-label"><span class="note">＊</span>地址</label>
+                            <label for="" class="col-sm-2 col-xs-12 control-label">地址</label>
                             <div class="col-md-2 col-sm-2 col-xs-12 ">
                                 <?= Html::activeDropDownList($member, 'city', [],
-                                    ['class' => 'form-control input-lg', 'data-v-rule' => '', 'data-v-msg' => '請輸入所在城市']) ?>
+                                    ['class' => 'form-control input-lg']) ?>
                             </div>
                             <div class="col-md-2 col-sm-2 col-xs-12 add">
                                 <?= Html::activeDropDownList($member, 'district', [],
-                                    ['class' => 'form-control input-lg', 'data-v-rule' => '', 'data-v-msg' => '請輸入所在地區']) ?>
+                                    ['class' => 'form-control input-lg']) ?>
                                 <?= Html::activeHiddenInput($member, 'zip') ?>
                             </div>
                             <div class="col-md-4 col-sm-4 col-xs-12">
                                 <?= Html::activeTextInput($member, 'address',
-                                    ['class' => 'form-control input-lg', 'placeholder' => '請輸入地址',
-                                        'data-v-rule' => '', 'data-v-msg' => '請輸入地址']) ?>
+                                    ['class' => 'form-control input-lg', 'placeholder' => '請輸入地址']) ?>
                             </div>
                         </div>
                         <div class="form-group border-dashed">
@@ -124,6 +128,10 @@ TwCityAsset::register($this);
 <script>
     (function () {
         var formParams = {
+            '<?= Html::getInputName($member, 'name') ?>': [function () {
+                var name = document.getElementById('<?= Html::getInputId($member, 'name') ?>');
+                return /^[\u4e00-\u9fa5]+$/.test($.trim(name.value));
+            }, '名稱只能輸入中文'],
             '<?= Html::getInputName($member, 'password') ?>': [function () {
                 var password = document.getElementById('<?= Html::getInputId($member, 'password') ?>');
                 var password2 = document.getElementById('<?= Html::getInputId($member, 'password2') ?>');
@@ -175,4 +183,3 @@ TwCityAsset::register($this);
     })();
 </script>
 <?php InlineScript::end() ?>
-

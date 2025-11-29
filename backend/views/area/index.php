@@ -1,6 +1,7 @@
 <?php
 
 use backend\widget\Breadcrumbs;
+use backend\widget\Paging;
 use ball\helper\HtmlHelper;
 use ball\util\HttpUtil;
 use common\models\AreaModel;
@@ -80,6 +81,7 @@ use common\models\UserModel;
                                 <?php endforeach; ?>
                                 </tbody>
                             </table>
+                            <?php echo Paging::widget(['start' => $start, 'count' => $count]) ?>
                         </div>
                     <?php else: ?>
                         <div class="text-center">目前無資料</div>
@@ -89,4 +91,3 @@ use common\models\UserModel;
         </div>
     </div>
 </div>
-

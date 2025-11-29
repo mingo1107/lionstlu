@@ -39,11 +39,13 @@ class SiteController extends FrontendController
         $promoteArticleList = ArticleModel::search(["status" => ArticleModel::STATUS_PROMOTE], 3);
         $latestArticleList = ArticleModel::search([], 6);
         $productArticleList = ArticleModel::search(["type" => ArticleModel::AD_PRODUCT], 3);
+        $quickLinks = \common\models\QuickLink::getFrontendLinks();
 
         return $this->render('index', [
             'promoteArticleList' => $promoteArticleList,
             'latestArticleList' => $latestArticleList,
-            'productArticleList' => $productArticleList
+            'productArticleList' => $productArticleList,
+            'quickLinks' => $quickLinks,
         ]);
     }
 

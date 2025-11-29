@@ -38,6 +38,7 @@ $title = '匯入會員';
 
                         <div class="col-lg-12 text-right">
                             <a href="/<?= Yii::$app->controller->id ?>/download-template" class="btn btn-success">匯出會員Excel</a>
+                            <a href="/<?= Yii::$app->controller->id ?>/download-empty-template" class="btn btn-info">匯出空白Excel</a>
                         </div>
 
 
