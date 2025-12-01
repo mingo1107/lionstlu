@@ -86,20 +86,19 @@ class MemberController extends BackendController
 
         // 設定標題行（新增 分會名稱 於生日之後）
         $headers = [
-            'ID(四位數0001)',
             '區',
+            '分會',
             '帳號(Email)',
             '密碼',
             '名稱(姓名)',
             '手機',
             '生日',
-            '分會名稱',
             '所在城市',
             '所在區域',
             '所在地址',
             '其他城市',
-            '會員期限起',
-            '會員期限訖'
+            '會員期限起(2025-06-01)',
+            '會員期限訖(2026-06-30)'
         ];
 
         // 設定標題行
@@ -124,8 +123,8 @@ class MemberController extends BackendController
                 'horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_CENTER
             ]
         ];
-        // 14 欄，樣式範圍為 A1:N1
-        $sheet->getStyle('A1:N1')->applyFromArray($headerStyle);
+        // 13 欄，樣式範圍為 A1:M1
+        $sheet->getStyle('A1:M1')->applyFromArray($headerStyle);
 
         // 查詢所有會員資料（包含區域名稱）
         $sql = "SELECT m.*, a.area_name FROM member m LEFT JOIN area a ON m.area_id = a.id ORDER BY m.id DESC";
@@ -147,14 +146,13 @@ class MemberController extends BackendController
             };
 
             $rowData = [
-                isset($member->id) ? str_pad($member->id, 4, '0', STR_PAD_LEFT) : '',  // ID(四位數)
                 $member->area_name ?? '',                       // 區
+                $member->club_name ?? '',                       // 分會
                 $member->email ?? '',                           // 帳號(Email)
                 '',                                             // 密碼（留空，因為是加密的）
                 $member->name ?? '',                            // 名稱(姓名)
                 $member->mobile ?? '',                          // 手機
                 $formatDate($member->birthday),                 // 生日
-                $member->club_name ?? '',                       // 分會名稱
                 $member->city ?? '',                            // 所在城市
                 $member->district ?? '',                        // 所在區域
                 $member->address ?? '',                         // 所在地址
@@ -192,20 +190,19 @@ class MemberController extends BackendController
 
         // 設定標題行（新增 分會名稱 於生日之後）
         $headers = [
-            'ID(四位數0001)',
             '區',
+            '分會',
             '帳號(Email)',
             '密碼',
             '名稱(姓名)',
             '手機',
             '生日',
-            '分會名稱',
             '所在城市',
             '所在區域',
             '所在地址',
             '其他城市',
-            '會員期限起',
-            '會員期限訖'
+            '會員期限起(2025-06-01)',
+            '會員期限訖(2026-06-30)'
         ];
 
         // 設定標題行
@@ -230,8 +227,8 @@ class MemberController extends BackendController
                 'horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_CENTER
             ]
         ];
-        // 14 欄，樣式範圍為 A1:N1
-        $sheet->getStyle('A1:N1')->applyFromArray($headerStyle);
+        // 13 欄，樣式範圍為 A1:M1
+        $sheet->getStyle('A1:M1')->applyFromArray($headerStyle);
 
         // 輸出檔案
         $filename = '會員匯入空白範本_' . date('YmdHis') . '.xlsx';
@@ -372,8 +369,8 @@ class MemberController extends BackendController
             // 將欄位字母轉成數字（A=1, B=2...）
             $highestColumnIndex = \PHPExcel_Cell::columnIndexFromString($highestColumn);
 
-            // 固定模板欄位數 (14 欄)，如果 Excel 比這多就多讀
-            $maxCols = max($highestColumnIndex, 14);
+            // 固定模板欄位數 (13 欄)，如果 Excel 比這多就多讀
+            $maxCols = max($highestColumnIndex, 13);
 
             $rows = [];
 
@@ -420,20 +417,19 @@ class MemberController extends BackendController
             }
             // 解析欄位 (索引從 0 開始)
             // 將所有值轉換為字串，避免整數類型問題
-            // 第一個欄位 (索引 0) 是會員編號，已改用資料庫 ID，匯入時直接略過
-            $areaName = isset($row[1]) ? trim((string)$row[1]) : '';      // 區
+            $areaName = isset($row[0]) ? trim((string)$row[0]) : '';      // 區
+            $clubName = isset($row[1]) ? trim((string)$row[1]) : '';      // 分會
             $email = isset($row[2]) ? trim((string)$row[2]) : '';         // 帳號(Email)
             $password = isset($row[3]) ? trim((string)$row[3]) : '';      // 密碼
             $name = isset($row[4]) ? trim((string)$row[4]) : '';          // 名稱(姓名)
             $mobile = isset($row[5]) ? trim((string)$row[5]) : '';        // 手機
             $birthday = isset($row[6]) ? $this->parseExcelDate($row[6]) : null;  // 生日
-            $clubName = isset($row[7]) ? trim((string)$row[7]) : '';      // 分會名稱
-            $city = isset($row[8]) ? $this->normalizeCityName(trim((string)$row[8])) : '';  // 所在城市
-            $district = isset($row[9]) ? $this->normalizeDistrictName(trim((string)$row[9])) : '';  // 所在區域
-            $address = isset($row[10]) ? trim((string)$row[10]) : '';     // 所在地址
-            $otherCity = isset($row[11]) ? trim((string)$row[11]) : '';   // 其他城市
-            $periodStart = isset($row[12]) ? $this->parseExcelDate($row[12]) : null;  // 會員期限起
-            $periodEnd = isset($row[13]) ? $this->parseExcelDate($row[13]) : null;    // 會員期限訖
+            $city = isset($row[7]) ? $this->normalizeCityName(trim((string)$row[7])) : '';  // 所在城市
+            $district = isset($row[8]) ? $this->normalizeDistrictName(trim((string)$row[8])) : '';  // 所在區域
+            $address = isset($row[9]) ? trim((string)$row[9]) : '';     // 所在地址
+            $otherCity = isset($row[10]) ? trim((string)$row[10]) : '';   // 其他城市
+            $periodStart = isset($row[11]) ? $this->parseExcelDate($row[11]) : null;  // 會員期限起
+            $periodEnd = isset($row[12]) ? $this->parseExcelDate($row[12]) : null;    // 會員期限訖
 
             // 驗證必填欄位
             if (empty($email)) {
