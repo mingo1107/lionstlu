@@ -1,6 +1,7 @@
 <?php
 
 use backend\widget\Breadcrumbs;
+use backend\widget\Paging;
 use ball\helper\HtmlHelper;
 use ball\util\HttpUtil;
 use common\models\AreaModel;
@@ -108,9 +109,9 @@ use yii\helpers\Html;
                                         $periodClass = 'text-muted';
 
                                         if (!empty($model->period_start) || !empty($model->period_end)) {
-                                            $start = $model->period_start ?: '不限';
-                                            $end = $model->period_end ?: '不限';
-                                            $periodText = $start . '<br>～<br>' . $end;
+                                            $periodStart = $model->period_start ?: '不限';
+                                            $periodEnd = $model->period_end ?: '不限';
+                                            $periodText = $periodStart . '<br>～<br>' . $periodEnd;
 
                                             // 檢查是否過期或未生效
                                             $now = time();
@@ -139,7 +140,7 @@ use yii\helpers\Html;
                                                     <div style="font-size: 12px; color: #999;"><?= Html::encode($model->club_name) ?></div>
                                                 <?php endif; ?>
                                             </td>
-                                            <td class="text-center" style="font-size: 12px;"><?= !empty($model->phone) ? Html::encode($model->phone) : '-' ?></td>
+                                            <td class="text-center" style="font-size: 12px;"><?= !empty($model->mobile) ? Html::encode($model->mobile) : '-' ?></td>
                                             <td class="text-center"><?= MemberModel::$statusLabel[$model->status] ?></td>
                                             <td class="text-center"><?= isset(MemberModel::$validateLabel[$model->validate]) ? MemberModel::$validateLabel[$model->validate] : '未知' ?></td>
                                             <td class="text-center <?= $periodClass ?>" style="font-size: 12px;">
@@ -158,6 +159,7 @@ use yii\helpers\Html;
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
+                            <?php echo Paging::widget(['start' => $start, 'count' => $count]) ?>
                         </div>
                     <?php else: ?>
                         <div class="text-center">目前無資料</div>

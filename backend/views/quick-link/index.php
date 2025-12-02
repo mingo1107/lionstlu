@@ -98,9 +98,9 @@ use yii\helpers\Html;
                                         <td class="text-center">
                                             <a class="btn btn-general btn-block"
                                                href="/<?= Yii::$app->controller->id ?>/update<?= HttpUtil::buildQuery($_GET, [], ['id' => $model->id]) ?>">編輯</a>
-                                            <a class="btn btn-outline-danger btn-block"
+                                            <!-- <a class="btn btn-outline-danger btn-block"
                                                onclick="return confirm('確認刪除?')"
-                                               href="/<?= Yii::$app->controller->id ?>/delete<?= HttpUtil::buildQuery($_GET, [], ['id' => $model->id]) ?>">刪除</a>
+                                               href="/<?= Yii::$app->controller->id ?>/delete<?= HttpUtil::buildQuery($_GET, [], ['id' => $model->id]) ?>">刪除</a> -->
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>

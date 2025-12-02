@@ -6,6 +6,7 @@ namespace backend\controllers;
 use ball\helper\HtmlHelper;
 use ball\helper\Pagination;
 use ball\helper\SQLHelper;
+use ball\util\HttpUtil;
 use common\models\AreaModel;
 use common\models\MemberModel;
 use Yii;
@@ -73,7 +74,8 @@ class MemberController extends BackendController
         $id = intval(Yii::$app->request->get('id'));
         MemberModel::deleteAll(['id' => $id]);
         HtmlHelper::setMessage('刪除成功');
-        return $this->redirect(['index' . $this->queryString]);
+        // 刪除後移除 start 參數,避免分頁超出範圍
+        return $this->redirect(['index' . HttpUtil::buildQuery($_GET, ['id', 'start'])]);
     }
 
     /**
@@ -246,6 +248,10 @@ class MemberController extends BackendController
      */
     public function actionImport()
     {
+        // 允許較長執行時間以處理大量匯入（但仍嘗試減少每筆的雜湊成本）
+        if (function_exists('set_time_limit')) {
+            @set_time_limit(0);
+        }
         $insertCount = 0;  // 新增筆數
         $updateCount = 0;  // 更新筆數
         $failCount = 0;    // 失敗筆數
@@ -462,7 +468,8 @@ class MemberController extends BackendController
                 // 密碼處理：更新會員時，只有當 Excel 中有提供密碼時才更新
                 // 如果密碼為空則不更新，避免覆蓋原本的密碼
                 if (!empty($password) && trim($password) !== '') {
-                    $member->setPassword($password);
+                    // 匯入時使用較低成本的雜湊以加快大量匯入速度
+                    $member->password_hash = Yii::$app->security->generatePasswordHash($password, 8);
                 }
                 // 如果密碼為空，不執行任何操作，保留原本的密碼
             } else {
@@ -472,12 +479,13 @@ class MemberController extends BackendController
 
                 // 密碼處理：新增會員時必須設定密碼
                 if (!empty($password) && trim($password) !== '') {
-                    // 如果 Excel 中有提供密碼，使用提供的密碼
-                    $member->setPassword($password);
+                    // 如果 Excel 中有提供密碼，使用提供的密碼（匯入時用較低成本）
+                    $member->password_hash = Yii::$app->security->generatePasswordHash($password, 8);
                 } else {
                     // 如果密碼為空，使用 email 前綴作為預設密碼
                     $defaultPassword = substr($email, 0, strpos($email, '@'));
-                    $member->setPassword($defaultPassword);
+                    // 使用較低成本雜湊以加快匯入
+                    $member->password_hash = Yii::$app->security->generatePasswordHash($defaultPassword, 8);
 
                     // 記錄使用預設密碼的會員（方便後續通知）
                     Yii::info("會員 {$email} 使用預設密碼：{$defaultPassword}", 'member-import');

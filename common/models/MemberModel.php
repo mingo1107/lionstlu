@@ -188,10 +188,10 @@ class MemberModel extends Member implements IdentityInterface
      */
     public static function query(array $search, int $limit = null, int $offset = null)
     {
-        $sql = "SELECT m.*, a.area_name, m.club_name, m.phone FROM member m LEFT JOIN area a ON m.area_id = a.id WHERE 1 = 1 ";
+        $sql = "SELECT m.*, a.area_name, m.club_name, m.mobile FROM member m LEFT JOIN area a ON m.area_id = a.id WHERE 1 = 1 ";
         $params = [];
         if (!empty($search['keyword'])) {
-            $sql .= " and (m.name like :keyword OR m.username like :keyword OR m.email like :keyword OR m.mobile like :keyword OR m.phone like :keyword)";
+            $sql .= " and (m.name like :keyword OR m.username like :keyword OR m.email like :keyword OR m.mobile like :keyword)";
             $params[":keyword"] = "%" . $search['keyword'] . "%";
         }
 
@@ -238,7 +238,7 @@ class MemberModel extends Member implements IdentityInterface
         $sql = "SELECT count(*) FROM member m WHERE 1 = 1 ";
         $params = [];
         if (!empty($search['keyword'])) {
-            $sql .= " and (m.name like :keyword OR m.username like :keyword OR m.email like :keyword OR m.mobile like :keyword OR m.phone like :keyword)";
+            $sql .= " and (m.name like :keyword OR m.username like :keyword OR m.email like :keyword OR m.mobile like :keyword)";
             $params[":keyword"] = "%" . $search['keyword'] . "%";
         }
 

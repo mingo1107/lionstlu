@@ -74,12 +74,22 @@ class Paging extends Widget
 
     private function setLinks()
     {
+        // 計算總頁數
+        $totalPages = ceil($this->page->getCount() / $this->page->getSize());
+
         // 計算起始頁
-        $this->linkLimit = $this->page->getCurrentPage() + (intval(self::PAGE_AMOUNT - 1) / 2) + 1;
         if ($this->page->getCurrentPage() - intval(self::PAGE_AMOUNT / 2) < 1) {
             $this->linkStart = 1;
         } else {
             $this->linkStart = $this->page->getCurrentPage() - intval(self::PAGE_AMOUNT / 2);
+        }
+
+        // 計算結束頁
+        $this->linkLimit = $this->linkStart + self::PAGE_AMOUNT - 1;
+
+        // 確保不超過總頁數
+        if ($this->linkLimit > $totalPages) {
+            $this->linkLimit = $totalPages;
         }
     }
 

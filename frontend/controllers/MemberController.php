@@ -467,7 +467,6 @@ class MemberController extends FrontendController
         }
         $user->username = isset($result->email) && !empty($result->email) ? $result->email : "facebook_" . $result->id;
         $user->email = isset($result->email) && !empty($result->email) ? $result->email : "";
-        //        $user->mobile = isset($result->mobile_phone) && !empty($result->mobile_phone) ? $result->mobile_phone : "";
         $user->setPassword(StringUtil::generateRandomString(40));
         $user->name = $result->name;
         $user->status = MemberModel::STATUS_ONLINE;

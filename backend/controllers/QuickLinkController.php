@@ -92,9 +92,10 @@ class QuickLinkController extends BackendController
 
     public function actionDelete()
     {
-        $id = intval(Yii::$app->request->get('id'));
-        QuickLink::deleteAll(['id' => $id]);
-        HtmlHelper::setMessage('刪除成功');
-        return $this->redirect(['index' . $this->queryString]);
+        return ;
+        // $id = intval(Yii::$app->request->get('id'));
+        // QuickLink::deleteAll(['id' => $id]);
+        // HtmlHelper::setMessage('刪除成功');
+        // return $this->redirect(['index' . $this->queryString]);
     }
 }
