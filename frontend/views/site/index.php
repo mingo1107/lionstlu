@@ -24,36 +24,36 @@ use frontend\widget\Carousel;
     <div class="icon_area row">
         <div class=" col-4" >
             <a target=”_blank”  href="https://lionstlu.org.tw/member/login">
-            <img src="/images/icon1.png" width="120" height="120">
+            <img src="/images/icon1.png" >
             登入 </a>
         </div>
         <?php if (!Yii::$app->user->isGuest): ?>
         <div class=" col-4" >
             <a target="_blank" href="#">
-            <img src="/images/icon2.png" width="120" height="120">
+            <img src="/images/icon2.png" >
             直播</a>
             </div>
         <?php endif; ?>
         <div class=" col-4" >
             <a  target="_blank" href="https://www.facebook.com/LionsUniversity/">
-            <img src="/images/icon3.png" width="120" height="120">
+            <img src="/images/icon3.png" >
             臉書</a>
             </div>
         <?php if (!Yii::$app->user->isGuest): ?>
         <div class=" col-4" >
             <a target="_blank"  href=" https://drive.google.com/drive/folders/1VOenFSsqeW-PQ1DOeIkCfP2Jb4u9hnGS?usp=sharing">
-            <img src="/images/icon4.png" width="120" height="120">
+            <img src="/images/icon4.png" >
             影片回放 </a>
             </div>
         <?php endif; ?>
         <div class=" col-4" >
             <a  target=”_blank” href="https://calendar.google.com/calendar/u/0?cid=dGx1QHlhZ293dXMuY29t">
-            <img src="/images/icon5.png" width="120" height="120">
+            <img src="/images/icon5.png" >
             行事曆</a>
             </div>
         <div class=" col-4" >
             <a target=”_blank”  href="https://docs.google.com/document/d/1aevnS6-A6CvhhV6QRQj-36MfDL3TZ85mSD4OzTFPqFI/edit?usp=sharing">
-            <img src="/images/icon6.png" width="120" height="120">
+            <img src="/images/icon6.png" >
             最新消息</a>
         </div>
     </div >

@@ -5245,6 +5245,9 @@ input[type="password"].form-control::-webkit-input-placeholder {
   width: 16.6666667%;
 }
 
+.icon_area .col-4 img{
+  width: 100px;
+}
 @media (max-width: 991px) {
   .icon_area .col-4 {
     width: 16.6666667%;

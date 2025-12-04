@@ -33,14 +33,14 @@ TwCityAsset::register($this);
                         <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>"
                                value="<?= Yii::$app->request->csrfToken ?>"/>
                         <div class="form-group border-dashed">
-                            <label for="" class="col-sm-2 col-xs-12 control-label">帳號</label>
+                            <label for="" class="col-sm-2 col-xs-12 control-label">帳號（郵件）</label>
                             <div class="col-sm-10 col-xs-12">
                                 <p class="form-control-static"><?= $member->username ?></p>
                             </div>
                         </div>
 
                         <div class="form-group border-dashed">
-                            <label for="" class="col-sm-2 col-xs-12 control-label"><span class="note">＊</span>名稱</label>
+                            <label for="" class="col-sm-2 col-xs-12 control-label"><span class="note">＊</span>真實姓名</label>
                             <div class="col-sm-10 col-xs-12">
                                 <?= Html::activeTextInput($member, 'name',
                                     ['class' => 'form-control input-lg', 'placeholder' => '名稱']) ?>
